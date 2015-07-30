@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>$author$</authors>
+    <owners>$author$</owners>
+    <licenseUrl>http://opensource.org/licenses/bsd-license.php</licenseUrl>
+    <projectUrl>https://github.com/illyum/l2t</projectUrl>
+    <iconUrl>https://avatars0.githubusercontent.com/u/9385799?v=3&amp;s=200</iconUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>$description$</description>
+    <releaseNotes>Just uploaded and shared through NuGet after several years of being used internally</releaseNotes>
+    <copyright>Copyright (C) 2015 Illyum</copyright>
+    <tags>csv tsv delimiter character separated values</tags>
+  </metadata>
+</package>

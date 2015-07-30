@@ -1,0 +1,270 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using IllyumL2T.Core;
+
+namespace IllyumL2T.Core.UnitTests
+{
+  [TestClass]
+  public class LineParserTests
+  {
+    [TestMethod]
+    public void LineParserCreateTest()
+    {
+      // Arrange
+      var properties = typeof(Foo).GetProperties();
+      var expected = properties.Count();
+
+      // Act
+      var lineParser = new LineParser<Foo>();
+      var actual = lineParser.FieldParsers.Count();
+
+      // Assert
+      // There has to be as many FieldParsers as Properties in the target type...
+      Assert.AreEqual<int>(expected, actual);
+
+      // ...and there has to be one single field for every property in ClassForTesting...
+      foreach(var field in lineParser.FieldParsers)
+      {
+        Assert.IsNotNull(properties.Single(p => p.Name.Equals(field.FieldName)));
+      }
+    }
+
+    [TestMethod]
+    public void LineParseTest()
+    {
+      // Arrange
+      var line = @"Jane Doe,jane@domain.com,F,,128,,1234,,98765,,1234567890,,1.2,,3.4,,3.1416,,25/12/2007,";
+
+      // Act
+      var lineParser = new LineParser<Foo>();
+      var parseResult = lineParser.Parse(line, delimiter: ',');
+
+      // Assert
+      Assert.IsNull(parseResult.Errors);
+
+      var actual = parseResult.Instance;
+      var expected = new Foo()
+      {
+        StringProperty = "Jane Doe",
+        StringPropertyWithPattern = "jane@domain.com",
+        CharProperty = 'F',
+        NullableCharProperty = null,
+        ByteProperty = 128,
+        NullableByteProperty = null,
+        Int16Property = 1234,
+        NullableInt16Property = null,
+        Int32Property = 98765,
+        NullableInt32Property = null,
+        Int64Property = 1234567890,
+        NullableInt64Property = null,
+        SingleProperty = 1.2F,
+        NullableSingleProperty = null,
+        DoubleProperty = 3.4,
+        NullableDoubleProperty = null,
+        DecimalProperty = 3.1416m,
+        NullableDecimalProperty = null,
+        DateTimeProperty = new DateTime(2007, 12, 25),
+        NullableDateTimeProperty = null,
+      };
+
+      Assert.AreEqual<Foo>(expected, actual);
+    }
+
+    [TestMethod]
+    public void LineParseWithErrorsTest()
+    {
+      // Arrange
+      var line = @"Jane Doe,jane@domain.com,F,,128,,ABCD,,98765,,1234567890,,*,,3.4,,3.1416,,99/99/9999,";
+
+      // Act
+      var lineParser = new LineParser<Foo>();
+      var parseResult = lineParser.Parse(line, delimiter: ',');
+
+      // Assert
+      Assert.IsNotNull(parseResult.Errors);
+
+      var expectedErrorCount = 3;
+      var actualErrorCount = parseResult.Errors.Count();
+      Assert.AreEqual<int>(expectedErrorCount, actualErrorCount);
+
+      var expectedErrorMessages = new string[]
+      {
+        "Int16Property: Unparsable System.Int16 >>> ABCD",
+        "SingleProperty: Unparsable System.Single >>> *",
+        "DateTimeProperty: Unparsable System.DateTime >>> 99/99/9999"
+      };
+      var actualErrorMessages = parseResult.Errors;
+      Assert.IsTrue(expectedErrorMessages.SequenceEqual(actualErrorMessages));
+    }
+
+    [TestMethod]
+    public void LineParseNullsTest()
+    {
+      // Arrange
+      var line = @"Jane Doe,jane@domain.com,F,,128,,1234,,98765,,1234567890,,1.2,,3.4,,3.1416,,27/10/2007,";
+
+      // Act
+      var lineParser = new LineParser<Foo>();
+      var parseResult = lineParser.Parse(line, delimiter: ',');
+
+      // Assert
+      Assert.IsNotNull(parseResult);
+
+      Assert.IsNull(parseResult.Errors);
+
+      var actual = parseResult.Instance;
+      var expected = new Foo()
+      {
+        StringProperty = "Jane Doe",
+        StringPropertyWithPattern = "jane@domain.com",
+        CharProperty = 'F',
+        NullableCharProperty = null,
+        ByteProperty = 128,
+        NullableByteProperty = null,
+        Int16Property = 1234,
+        NullableInt16Property = null,
+        Int32Property = 98765,
+        NullableInt32Property = null,
+        Int64Property = 1234567890,
+        NullableInt64Property = null,
+        SingleProperty = 1.2F,
+        NullableSingleProperty = null,
+        DoubleProperty = 3.4,
+        NullableDoubleProperty = null,
+        DecimalProperty = 3.1416m,
+        NullableDecimalProperty = null,
+        DateTimeProperty = new DateTime(2007, 10, 27),
+        NullableDateTimeProperty = null,
+      };
+
+      Assert.AreEqual<Foo>(expected, actual);
+    }
+
+    [TestMethod]
+    public void LineParseWithDelimiterWithinTheFieldTest()
+    {
+      // Arrange
+      var line = "\"Doe, Jane\",jane@domain.com,F,,128,,1234,,98765,,1234567890,,1.2,,3.4,,3.1416,,25/12/2007,";
+
+      // Act
+      var lineParser = new LineParser<Foo>();
+      var parseResult = lineParser.Parse(line, delimiter: ',');
+
+      // Assert
+      Assert.IsNull(parseResult.Errors);
+
+      var actual = parseResult.Instance;
+      var expected = new Foo()
+      {
+        StringProperty = "Doe, Jane",
+        StringPropertyWithPattern = "jane@domain.com",
+        CharProperty = 'F',
+        NullableCharProperty = null,
+        ByteProperty = 128,
+        NullableByteProperty = null,
+        Int16Property = 1234,
+        NullableInt16Property = null,
+        Int32Property = 98765,
+        NullableInt32Property = null,
+        Int64Property = 1234567890,
+        NullableInt64Property = null,
+        SingleProperty = 1.2F,
+        NullableSingleProperty = null,
+        DoubleProperty = 3.4,
+        NullableDoubleProperty = null,
+        DecimalProperty = 3.1416m,
+        NullableDecimalProperty = null,
+        DateTimeProperty = new DateTime(2007, 12, 25),
+        NullableDateTimeProperty = null,
+      };
+
+      Assert.AreEqual<Foo>(expected, actual);
+    }
+
+    [TestMethod]
+    public void LineParseUsingPipeAsDelimiterTest()
+    {
+      // Arrange
+      var line = "Jane Doe|jane@domain.com|F||128||1234||98765||1234567890||1.2||3.4||3.1416||25/12/2007|";
+
+      // Act
+      var lineParser = new LineParser<Foo>();
+      var parseResult = lineParser.Parse(line, delimiter: '|');
+
+      // Assert
+      Assert.IsNull(parseResult.Errors);
+
+      var actual = parseResult.Instance;
+      var expected = new Foo()
+      {
+        StringProperty = "Jane Doe",
+        StringPropertyWithPattern = "jane@domain.com",
+        CharProperty = 'F',
+        NullableCharProperty = null,
+        ByteProperty = 128,
+        NullableByteProperty = null,
+        Int16Property = 1234,
+        NullableInt16Property = null,
+        Int32Property = 98765,
+        NullableInt32Property = null,
+        Int64Property = 1234567890,
+        NullableInt64Property = null,
+        SingleProperty = 1.2F,
+        NullableSingleProperty = null,
+        DoubleProperty = 3.4,
+        NullableDoubleProperty = null,
+        DecimalProperty = 3.1416m,
+        NullableDecimalProperty = null,
+        DateTimeProperty = new DateTime(2007, 12, 25),
+        NullableDateTimeProperty = null,
+      };
+
+      Assert.AreEqual<Foo>(expected, actual);
+    }
+
+    [TestMethod]
+    public void LineParseUsingTabsAsDelimiterTest()
+    {
+      // Arrange
+      var line = "Jane Doe\tjane@domain.com\tF\t\t128\t\t1234\t\t98765\t\t1234567890\t\t1.2\t\t3.4\t\t3.1416\t\t25/12/2007\t";
+
+      // Act
+      var lineParser = new LineParser<Foo>();
+      var parseResult = lineParser.Parse(line, delimiter: '\t');
+
+      // Assert
+      Assert.IsNull(parseResult.Errors);
+
+      var actual = parseResult.Instance;
+      var expected = new Foo()
+      {
+        StringProperty = "Jane Doe",
+        StringPropertyWithPattern = "jane@domain.com",
+        CharProperty = 'F',
+        NullableCharProperty = null,
+        ByteProperty = 128,
+        NullableByteProperty = null,
+        Int16Property = 1234,
+        NullableInt16Property = null,
+        Int32Property = 98765,
+        NullableInt32Property = null,
+        Int64Property = 1234567890,
+        NullableInt64Property = null,
+        SingleProperty = 1.2F,
+        NullableSingleProperty = null,
+        DoubleProperty = 3.4,
+        NullableDoubleProperty = null,
+        DecimalProperty = 3.1416m,
+        NullableDecimalProperty = null,
+        DateTimeProperty = new DateTime(2007, 12, 25),
+        NullableDateTimeProperty = null,
+      };
+
+      Assert.AreEqual<Foo>(expected, actual);
+    }
+  }
+}
