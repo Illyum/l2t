@@ -127,7 +127,7 @@ Debug.Assert(foo.IntegerProperty == 1);
 Debug.Assert(foo.StringProperty == "Say Hello, world! to the world!");
 Debug.Assert(foo.DoubleProperty == 3.1416);
 ```
-Internally, IllyumL2T uses a regular expression that can be overriden through the SplitByDelimiterRegexPattern parameter in the application configuration file (web.config for web applications).
+Internally and for splitting the field values, IllyumL2T uses a regular expression that can be overriden through the SplitByDelimiterRegexPattern parameter in the application configuration file (web.config for web applications).
 
 ###FileParser
 IllyumL2T provides the `FileParser` class when the lines are to be read from a text file. The following code shows an example of how to use it:
