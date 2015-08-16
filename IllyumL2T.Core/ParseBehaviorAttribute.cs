@@ -18,14 +18,16 @@ namespace IllyumL2T.Core
 
     public string Pattern { get; set; }
 
-    public ParseBehaviorAttribute()
-      : this
+    public int Length { get; set; } //Apparently, System.Nullable<uint> cannot be used within CLR attributes.
+
+    public ParseBehaviorAttribute() : this
         (
           cultureName: CultureInfo.CurrentCulture.Name,
           numberStyle: NumberStyles.None,
           dateTimeStyle: DateTimeStyles.None,
           dateTimeFormat: null,
-          pattern: null
+          pattern: null,
+          length: int.MinValue
         )
     {
     }
@@ -36,7 +38,8 @@ namespace IllyumL2T.Core
       NumberStyles numberStyle,
       DateTimeStyles dateTimeStyle,
       string dateTimeFormat,
-      string pattern
+      string pattern,
+      int length
     )
     {
       CultureName = cultureName;
@@ -44,6 +47,7 @@ namespace IllyumL2T.Core
       DateTimeStyle = dateTimeStyle;
       DateTimeFormat = dateTimeFormat;
       Pattern = pattern;
+      Length = length;
     }
   }
 }

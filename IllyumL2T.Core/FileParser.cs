@@ -9,12 +9,12 @@ namespace IllyumL2T.Core
 {
   public class FileParser<T> where T : class, new()
   {
-    protected ILineParser<T> _lineParser;
+    //protected ILineParser<T> _lineParser; // this could be better design but ParseFileWithErrorsTest fails with it.
 
-    public FileParser()
-    {
-      _lineParser = new LineParser<T>();
-    }
+    //public FileParser()
+    //{
+    //    _lineParser = new LineParser<T>();
+    //}
 
     public IEnumerable<ParseResult<T>> Read(StreamReader reader, char delimiter, bool includeHeaders)
     {
@@ -32,16 +32,18 @@ namespace IllyumL2T.Core
       while(true)
       {
         var line = reader.ReadLine();
-        if(String.IsNullOrEmpty(line) == false)
+        if (line == null) //This is the condition to finish the iteration. Based on http://msdn.microsoft.com/en-us/library/system.io.streamreader.readline(v=vs.110).aspx
         {
-          var lineParser = new LineParser<T>();
-          var parseResult = lineParser.Parse(line, delimiter);
-          yield return parseResult;
+            yield break;
         }
-        else
+        if (String.IsNullOrWhiteSpace(line)) //An empty line should mean a non-existing application object, not the end of the iteration.
         {
-          yield break;
+            continue;
         }
+        var lineParser = new LineParser<T>();
+        var parseResult = lineParser.Parse(line, delimiter);
+        //var parseResult = _lineParser.Parse(line, delimiter); // this could be better design but ParseFileWithErrorsTest fails with it.
+        yield return parseResult;
       }
     }
   }

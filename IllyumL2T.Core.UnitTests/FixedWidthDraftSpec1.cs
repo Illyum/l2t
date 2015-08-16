@@ -2,6 +2,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
+using System.Text;
 
 namespace IllyumL2T.Core.UnitTests
 {
@@ -52,6 +54,36 @@ namespace IllyumL2T.Core.UnitTests
         }
     }
 
+    [TestClass]
+    public class FileParserTests_BinaryFixedWidth
+    {
+        [TestMethod, TestCategory("BinaryFixedWidth")]
+        public void ParseBinaryFixedWidthFileSpec()
+        {
+            // Arrange
+            var frame = new System.IO.MemoryStream(new byte[] { 0x30, 0x39, 0xEA, 0x00, 0x00, 0x02, 0xA6, 0x41, 0x42, 0x43 }); //The incoming bytes, maybe from the network or from network frames captured in a file.
+            var fixedWidthStream = new FixedWidthStream<Record>(frame);
+
+            // Act
+            List<Record> parsed_objects;
+            using (var reader = new System.IO.StreamReader(fixedWidthStream))
+            {
+                var fileParser = new FileParser<Record>();
+                var parseResults = fileParser.Read(reader, delimiter: '|', includeHeaders: false);
+                parsed_objects = parseResults.Aggregate(new List<Record>(), (whole, next) => { whole.Add(next.Instance); return whole; });
+            }
+
+            // Assert
+            Assert.IsNotNull(parsed_objects);
+            Assert.AreEqual<int>(1, parsed_objects.Count());
+            Assert.IsNotNull(parsed_objects[0]);
+            Assert.AreEqual<ushort>(12345, parsed_objects[0].Type);
+            Assert.AreEqual<byte>(234, parsed_objects[0].Category);
+            Assert.AreEqual<uint>(678, parsed_objects[0].ID);
+            Assert.AreEqual<string>("ABC", parsed_objects[0].Label);
+        }
+    }
+
     /* Provisional place for the following declarations */
 
 
@@ -61,10 +93,10 @@ namespace IllyumL2T.Core.UnitTests
     /// </summary>
     public class Record
     {
-        [SequentialLayout(Length = 2)] public ushort Type;
-        [SequentialLayout(Length = 1)] public byte Category;
-        [SequentialLayout(Length = 4)] public uint ID;
-        [SequentialLayout(Length = 3)]public string Label;
+        [IllyumL2T.Core.ParseBehavior(Length = 2)] public ushort Type { get; set; }
+        [IllyumL2T.Core.ParseBehavior(Length = 1)] public byte Category { get; set; }
+        [IllyumL2T.Core.ParseBehavior(Length = 4)] public uint ID { get; set; }
+        [IllyumL2T.Core.ParseBehavior(Length = 3)] public string Label { get; set; }
     }
 
     #endregion
@@ -102,11 +134,92 @@ namespace IllyumL2T.Core.UnitTests
     }
     #endregion
 
-    #region System under test/specification (SUT)
+    #region System under test/specification (SUTs)
+
+    public class FixedWidthStream<T> : System.IO.Stream
+    {
+        private System.IO.Stream source;
+        private bool closed;
+
+        public FixedWidthStream(System.IO.Stream input)
+        {
+            source = input;
+            closed = false;
+        }
+
+        public override bool CanRead { get { return !closed; } }
+        public override bool CanSeek { get { throw new NotImplementedException(); } }
+        public override bool CanWrite { get { throw new NotImplementedException(); } }
+        public override long Length { get { throw new NotImplementedException(); } }
+
+        public override long Position
+        {
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
+        }
+
+        public override void Close()
+        {
+            if (!closed)
+            {
+                closed = true;
+                base.Close();
+            }
+        }
+        public override void Flush()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// This method does not work and ended up as very bad idea.
+        /// TODO: Discard this FixedWidthStream<T> alternative.
+        /// </summary>
+        public override int Read(byte[] buffer, int offset, int count)
+        {
+            //what if count/read > "line" size (where "line" is an application object)?
+            //what if count/read < "line" size (where "line" is an application object)?
+            int read = source.Read(buffer, offset, count);
+
+            var readline = new StringBuilder();
+            var reader = new BinaryReader(new MemoryStream(buffer));
+            //reader. -> The proposed ParseBehaviorAttribute.Length property was supposed to be used here to build a “line” out of the read buffer.
+
+            //what if encoded bytes > count?
+
+            byte[] encoded_bytes = Encoding.UTF8.GetBytes(readline.ToString());
+            encoded_bytes.CopyTo(buffer, 0);
+            return read;
+        }
+
+        public override long Seek(long offset, SeekOrigin origin)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void SetLength(long value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Write(byte[] buffer, int offset, int count)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if(disposing)
+            {
+                Close();
+                base.Dispose(disposing);
+            }
+        }
+    }
+
     public class BinaryFixedWidthReader
     {
         private ISchemaProvider metadata;
-        private System.IO.Stream input;
         public BinaryFixedWidthReader(ISchemaProvider metadata)
         {
             this.metadata = metadata;
@@ -117,9 +230,10 @@ namespace IllyumL2T.Core.UnitTests
             throw new NotImplementedException();
         }
     }
-    #endregion
 
-    #region Stubs
+#endregion
+
+#region Stubs
     /// <summary>
     /// Simple stub implementations for testing support.
     /// </summary>
@@ -154,5 +268,5 @@ namespace IllyumL2T.Core.UnitTests
             throw new NotImplementedException();
         }
     }
-    #endregion
+#endregion
 }
