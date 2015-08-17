@@ -30,6 +30,9 @@ namespace IllyumL2T.Core
       _parseMethods[typeof(Nullable<Double>)] = ParseDouble;
       _parseMethods[typeof(Nullable<Decimal>)] = ParseDecimal;
       _parseMethods[typeof(Nullable<DateTime>)] = ParseDateTime;
+      _parseMethods[typeof(Nullable<UInt16>)] = ParseUInt16;
+      _parseMethods[typeof(Nullable<UInt32>)] = ParseUInt32;
+      _parseMethods[typeof(Nullable<UInt64>)] = ParseUInt64;
     }
 
     public static Func<IFieldParser, object> For(Type type)
@@ -108,6 +111,21 @@ namespace IllyumL2T.Core
     static object ParseInt64(IFieldParser fieldParser)
     {
       return ParseNumber<Int64>(fieldParser, Int64.TryParse);
+    }
+
+    static object ParseUInt16(IFieldParser fieldParser)
+    {
+      return ParseNumber<UInt16>(fieldParser, UInt16.TryParse);
+    }
+
+    static object ParseUInt32(IFieldParser fieldParser)
+    {
+      return ParseNumber<UInt32>(fieldParser, UInt32.TryParse);
+    }
+
+    static object ParseUInt64(IFieldParser fieldParser)
+    {
+      return ParseNumber<UInt64>(fieldParser, UInt64.TryParse);
     }
 
     static object ParseDecimal(IFieldParser fieldParser)
