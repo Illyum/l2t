@@ -131,6 +131,11 @@ namespace IllyumL2T.Core
     }
   }
 
+  /// <summary>
+  /// This inheritance relationship is a key part of the actual link to the existing design.
+  /// The link between a line-oriented parsing approach and the packet/message-oriented parsing approach.
+  /// </summary>
+  /// <typeparam name="T">Target application object type.</typeparam>
   public class MessageParser<T> : LineParser<T> where T : class, new()
   {
     public MessageParser() : base() { }
