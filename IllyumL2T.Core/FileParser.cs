@@ -178,7 +178,7 @@ namespace IllyumL2T.Core
     /// <returns>Iterator for all raw data packets from a given binary source.</returns>
     public IEnumerable<byte[]> ReadNextPacket()
     {
-      const int buffer_size = 0x400;
+      const int buffer_size = 0x400; //Question: What if the incoming packet is larger than this value? Answer: By the FixedWidthBinaryParser<T>.Parse method, as currently designed, such larger packet will be processed the same as a smaller one: each contained message will be processed and any fragmented message at the end of the packet would be completed with the completing fragment at the start of the next read packet. Moreover, in the case of a larger message inside a larger packet, the same applies, in principle, thanks to the adjusting size of CircularBuffer. Of course, execution-based evidence is needed to backup just that.
       byte[] buffer = new byte[buffer_size];
       do
       {
