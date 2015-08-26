@@ -12,5 +12,7 @@ namespace IllyumL2T.Core
     public string Line { get; set; }
 
     public IEnumerable<string> Errors { get; set; }
+
+    public byte[] Message { get; set; }
   }
 }
