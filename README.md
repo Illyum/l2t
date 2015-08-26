@@ -25,7 +25,7 @@ With those in place, the IllyumL2T `LineParser` class allows to read the field v
 ```
 var line = "10248, 1.10, Address X, 10/10/2010";
 var lineParser = new LineParser<Order>();
-var parseResult = lineParser.Parse(line, delimiter: ',');
+var parseResult = lineParser.Parse(line);
 var order = parseResult.Instance;
 ```
 At this point, `order.OrderId` holds the integer value 10248, `order.Freight` holds the decimal value 1.10, `order.ShipAddress` holds the string value "Address X" and `order.DeliveryDate` holds the DateTime value October 10th 2010. Of course, any of the .NET CLR types can be used as needed and depending on the field values to be read.
@@ -37,7 +37,7 @@ A `ParseResult` instance holds useful information about the just finished `LineP
 ```
 var line = "ABCD, 1.10, Address X,";
 var lineParser = new LineParser<Order>();
-var parseResult = lineParser.Parse(line, delimiter: ',');
+var parseResult = lineParser.Parse(line);
 ```
 Note that the order id field cannot be converted to the target int OrderId property and that the field for the delivery date is missing. The `parseResult.Errors` will contain two items:
 ```
@@ -67,7 +67,7 @@ class Order
 
 var line = "10248, 1.10, Address X, ";
 var lineParser = new LineParser<Order>();
-var parseResult = lineParser.Parse(line, delimiter: ',');
+var parseResult = lineParser.Parse(line);
 var order = parseResult.Instance;
 
 Debug.Assert(order.DeliveryDate == null);
@@ -90,7 +90,7 @@ class Person
 
 var line = "franl@illyum.com, $123.45";
 var lineParser = new LineParser<Person>();
-var parseResult = lineParser.Parse(line, delimiter: ',');
+var parseResult = lineParser.Parse(line);
 var person = parseResult.Instance;
 
 Debug.Assert(person.Email == "franl@ilyum.com");
@@ -130,7 +130,7 @@ class Foo
 
 var line = "1, \"Say Hello, world! to the world!\", 3.1416";
 var lineParser = new LineParser<Foo>();
-var parseResult = lineParser.Parse(line, delimiter: ',');
+var parseResult = lineParser.Parse(line);
 var foo = parseResult.Instance;
 
 Debug.Assert(foo.IntegerProperty == 1);
