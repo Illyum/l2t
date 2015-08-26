@@ -85,8 +85,10 @@ namespace IllyumL2T.Core
       {
         foreach (byte[] message in messageReader.ReadNextMessageFrom(packet))
         {
-          string[] values = Parse(message);
+          //string[] values = ParseAsStrings(message);
+          IEnumerable<byte[]> values = ParseAsBytesArrays(message);
           var messageParser = new MessageParser<T>();
+          //yield return messageParser.Parse(values, message);
           yield return messageParser.Parse(values, message);
         }
       }
@@ -97,7 +99,7 @@ namespace IllyumL2T.Core
     /// </summary>
     /// <param name="message">Data message</param>
     /// <returns>Values to be parsed by a LineParser-derived class.</returns>
-    public string[] Parse(byte[] message)
+    public string[] ParseAsStrings(byte[] message)
     {
       var result = new List<string>();
       var buffer = new CircularBuffer((uint)message.Length);
@@ -122,8 +124,34 @@ namespace IllyumL2T.Core
       }
       return result.ToArray();
     }
-    private int CalculateTotalDeclaredSize(Type type) { return type.GetProperties().Select(p => (IllyumL2T.Core.ParseBehaviorAttribute)p.GetCustomAttributes(typeof(IllyumL2T.Core.ParseBehaviorAttribute), true).First()).Where(attr => attr.Length > 0).Sum(a => a.Length); }
-    private IEnumerable<int> GetPropertyLengths(Type type) { return type.GetProperties().Select(p => (IllyumL2T.Core.ParseBehaviorAttribute)p.GetCustomAttributes(typeof(IllyumL2T.Core.ParseBehaviorAttribute), true).First()).Select(attr => attr.Length); }
+
+    public IEnumerable<byte[]> ParseAsBytesArrays(byte[] message)
+    {
+      List<byte[]> result = new List<byte[]>();
+      var buffer = new CircularBuffer((uint)message.Length);
+      buffer.Add(message);
+
+      foreach (int bytes_to_read in GetPropertyLengths(SchemaToRead))
+      {
+        byte[] dataitem_bytes = null;
+        if (bytes_to_read > 0)
+        {
+          dataitem_bytes = buffer.ReadBytes((uint)bytes_to_read);
+          if (dataitem_bytes == null)
+          {
+            var exception_message = new System.Text.StringBuilder();
+            exception_message.AppendFormat("No {0} bytes found for dataitem.", bytes_to_read);
+            exception_message.AppendFormat("\r\nMessage Length: {0}", message.Length);
+            throw new Exception(exception_message.ToString());
+          }
+        }
+        result.Add(dataitem_bytes);
+      }
+      return result;
+    }
+
+    private int CalculateTotalDeclaredSize(Type type) => type.GetProperties().Select(p => (IllyumL2T.Core.ParseBehaviorAttribute)p.GetCustomAttributes(typeof(IllyumL2T.Core.ParseBehaviorAttribute), true).First()).Where(attr => attr.Length > 0).Sum(a => a.Length);
+    private IEnumerable<int> GetPropertyLengths(Type type) => type.GetProperties().Select(p => (IllyumL2T.Core.ParseBehaviorAttribute)p.GetCustomAttributes(typeof(IllyumL2T.Core.ParseBehaviorAttribute), true).First()).Select(attr => attr.Length);
     private string Provisional_ForExploratoryPurposes_DefaultToUTF8String(byte[] dataitem)
     {
       //TODO: check the possible requirements for binary vs text declarations.
@@ -141,6 +169,19 @@ namespace IllyumL2T.Core
     public MessageParser() : base() { }
 
     public ParseResult<T> Parse(string[] values, byte[] message)
+    {
+      var parseResult = new ParseResult<T>()
+      {
+        Message = message,
+        Instance = new T(),
+      };
+
+      ParseValues(values, parseResult);
+
+      return parseResult;
+    }
+
+    public ParseResult<T> Parse(IEnumerable<byte[]> values, byte[] message)
     {
       var parseResult = new ParseResult<T>()
       {

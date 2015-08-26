@@ -11,12 +11,13 @@ namespace IllyumL2T.Core.Interfaces
 
     object FieldValue { get; }
 
-    string FieldInput { get; }
+    byte[] FieldInput { get; }
 
     ParseBehaviorAttribute ParseBehavior { get; }
 
     IEnumerable<string> Errors { get; }
 
-    object Parse(string input);
+    //object Parse(string input);
+    object Parse(byte[] input);
   }
 }
