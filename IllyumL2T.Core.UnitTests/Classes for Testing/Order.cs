@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Globalization;
 
-namespace IllyumL2T.Core.UnitTests
+namespace IllyumL2T.Core.FieldsSplit.UnitTests
 {
   class Order
   {
     public short OrderId { get; set; }
 
-    [ParseBehavior(NumberStyle = NumberStyles.AllowDecimalPoint)]
+    [IllyumL2T.Core.ParseBehavior(NumberStyle = NumberStyles.AllowDecimalPoint)]
     public decimal Freight { get; set; }
 
     public string ShipAddress { get; set; }

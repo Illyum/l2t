@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 
-namespace IllyumL2T.Core.UnitTests
+namespace IllyumL2T.Core.FieldsSplit.UnitTests
 {
   class Foo
   {

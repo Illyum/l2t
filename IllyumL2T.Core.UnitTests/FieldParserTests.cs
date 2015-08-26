@@ -5,9 +5,10 @@ using System.Linq;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using IllyumL2T.Core;
+using IllyumL2T.Core.FieldsSplit;
+using IllyumL2T.Core.Parse;
 
-namespace IllyumL2T.Core.UnitTests
+namespace IllyumL2T.Core.FieldsSplit.UnitTests
 {
   [TestClass]
   public class FieldParserTests

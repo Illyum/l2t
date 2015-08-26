@@ -4,9 +4,10 @@ using System.Linq;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using IllyumL2T.Core;
+using IllyumL2T.Core.FieldsSplit;
+using IllyumL2T.Core.Parse;
 
-namespace IllyumL2T.Core.UnitTests
+namespace IllyumL2T.Core.FieldsSplit.UnitTests
 {
   [TestClass]
   public class LineParserTests
@@ -41,7 +42,7 @@ namespace IllyumL2T.Core.UnitTests
 
       // Act
       var lineParser = new LineParser<Foo>();
-      var parseResult = lineParser.Parse(line, delimiter: ',');
+      var parseResult = lineParser.Parse(line);
 
       // Assert
       Assert.IsNull(parseResult.Errors);
@@ -82,7 +83,7 @@ namespace IllyumL2T.Core.UnitTests
 
       // Act
       var lineParser = new LineParser<Foo>();
-      var parseResult = lineParser.Parse(line, delimiter: ',');
+      var parseResult = lineParser.Parse(line);
 
       // Assert
       Assert.IsNotNull(parseResult.Errors);
@@ -109,7 +110,7 @@ namespace IllyumL2T.Core.UnitTests
 
       // Act
       var lineParser = new LineParser<Foo>();
-      var parseResult = lineParser.Parse(line, delimiter: ',');
+      var parseResult = lineParser.Parse(line);
 
       // Assert
       Assert.IsNotNull(parseResult);
@@ -152,7 +153,7 @@ namespace IllyumL2T.Core.UnitTests
 
       // Act
       var lineParser = new LineParser<Foo>();
-      var parseResult = lineParser.Parse(line, delimiter: ',');
+      var parseResult = lineParser.Parse(line);
 
       // Assert
       Assert.IsNull(parseResult.Errors);
@@ -192,8 +193,9 @@ namespace IllyumL2T.Core.UnitTests
       var line = "Jane Doe|jane@domain.com|F||128||1234||98765||1234567890||1.2||3.4||3.1416||25/12/2007|";
 
       // Act
-      var lineParser = new LineParser<Foo>();
-      var parseResult = lineParser.Parse(line, delimiter: '|');
+      var fieldsSplitter = new DelimiterSeparatedValuesFieldsSplitter<Foo>(delimiter: '|');
+      var lineParser = new LineParser<Foo>(fieldsSplitter);
+      var parseResult = lineParser.Parse(line);
 
       // Assert
       Assert.IsNull(parseResult.Errors);
@@ -233,8 +235,9 @@ namespace IllyumL2T.Core.UnitTests
       var line = "Jane Doe\tjane@domain.com\tF\t\t128\t\t1234\t\t98765\t\t1234567890\t\t1.2\t\t3.4\t\t3.1416\t\t25/12/2007\t";
 
       // Act
-      var lineParser = new LineParser<Foo>();
-      var parseResult = lineParser.Parse(line, delimiter: '\t');
+      var fieldsSplitter = new DelimiterSeparatedValuesFieldsSplitter<Foo>(delimiter: '\t');
+      var lineParser = new LineParser<Foo>(fieldsSplitter);
+      var parseResult = lineParser.Parse(line);
 
       // Assert
       Assert.IsNull(parseResult.Errors);

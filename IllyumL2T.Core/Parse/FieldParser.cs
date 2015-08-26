@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 using IllyumL2T.Core.Interfaces;
 
-namespace IllyumL2T.Core
+namespace IllyumL2T.Core.Parse
 {
   public class FieldParser : IFieldParser
   {

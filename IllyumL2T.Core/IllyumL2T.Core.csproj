@@ -7,7 +7,7 @@
     <ProjectGuid>{D7E00375-7400-49CE-9A67-FB55F7EF9A71}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>IllyumL2T.Core</RootNamespace>
+    <RootNamespace>IllyumL2T.Core.FieldsSplit</RootNamespace>
     <AssemblyName>IllyumL2T.Core</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -37,17 +37,19 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FieldParser.cs" />
-    <Compile Include="FieldParserResolver.cs">
+    <Compile Include="FieldsSplit\FieldsSplitterBase.cs" />
+    <Compile Include="Parse\FieldParser.cs" />
+    <Compile Include="Parse\FieldParserResolver.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Interfaces\IFieldParser.cs" />
     <Compile Include="Interfaces\ILineParser.cs" />
-    <Compile Include="LineParser.cs" />
-    <Compile Include="ParseBehaviorAttribute.cs" />
-    <Compile Include="FileParser.cs" />
-    <Compile Include="ParseResult.cs" />
+    <Compile Include="Parse\LineParser.cs" />
+    <Compile Include="Parse\ParseBehaviorAttribute.cs" />
+    <Compile Include="Parse\DelimiterSeparatedValuesFileParser.cs" />
+    <Compile Include="Parse\ParseResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="FieldsSplit\DelimiterSeparatedValuesFieldsSplitter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="IllyumL2T.Core.nuspec">

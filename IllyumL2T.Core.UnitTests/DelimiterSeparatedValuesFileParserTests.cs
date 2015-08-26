@@ -7,13 +7,13 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Moq;
 
-using IllyumL2T.Core;
-using IllyumL2T.Core.Interfaces;
+using IllyumL2T.Core.FieldsSplit;
+using IllyumL2T.Core.Parse;
 
-namespace IllyumL2T.Core.UnitTests
+namespace IllyumL2T.Core.FieldsSplit.UnitTests
 {
   [TestClass]
-  public class FileParserTests
+  public class DelimiterSeparatedValuesFileParserTests
   {
     static IEnumerable<Order> _orders;
 
@@ -63,7 +63,7 @@ namespace IllyumL2T.Core.UnitTests
       var ordersFilePath = Path.Combine(TestContext.DeploymentDirectory, "Orders.csv");
       using(var reader = new StreamReader(ordersFilePath))
       {
-        var fileParser = new FileParser<Order>();
+        var fileParser = new DelimiterSeparatedValuesFileParser<Order>();
 
         // Act
         var parseResults = fileParser.Read(reader, delimiter: ',', includeHeaders: false);
@@ -80,7 +80,7 @@ namespace IllyumL2T.Core.UnitTests
       var ordersWithErrorsFilePath = Path.Combine(TestContext.DeploymentDirectory, "OrdersWithErrors.csv");
       using(var reader = new StreamReader(ordersWithErrorsFilePath))
       {
-        var fileParser = new FileParser<Order>();
+        var fileParser = new DelimiterSeparatedValuesFileParser<Order>();
 
         // Act
         var parseResults = fileParser.Read(reader, delimiter: ',', includeHeaders: false);

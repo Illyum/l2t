@@ -99,11 +99,21 @@ Debug.Assert(person.Salary == 123.45m);
 The ParseBehavior Pattern is a regular expression pattern. CultureName, NumberStyle, and DateTimeStyle properties use the .NET support for Globalization and it is extensively documented in MSDN. Finally, the DateTimeFormat property serves for the exact same purpose documented in DateTime.ParseExact or DateTime.TryParseExact. Take in mind that this property works in conjunction with CultureName and DateTimeStyle for DateTime values parsing.
 
 ###Delimiter
-IllyumL2T allows to configure the character to be used to separate field values through the second argument of the `LineParser` `Parse` method as shown in the examples above. But, what if the delimiter is part of the field being parsed? Take for example, the following line of text:
+By default, LineParser splits values separated by commas. To use a different character, you need to create an instance of DelimiterSeparatedValuesFieldsSplitter and pass it as a ctor argument as shown below:
+```
+var fieldsSplitter = new DelimiterSeparatedValuesFieldsSplitter<Foo>(delimiter: '|');
+var lineParser = new LineParser<Order>(fieldsSplitter);
+var parseResult = lineParser.Parse(line);
+```
+In the example below, the line to be parsed is separated by the pipe character ('|'):
+```
+10248|1.10|Address X|10/10/2010
+```
+But, what if the delimiter is part of the field being parsed? Take for example, the following line of text:
 ```
 1, Say Hello, world! to the world!, 3.1416
 ```
-If the comma is to be used as a field delimiter, the parsing will produce four values which may or may not what it is intended. But to prevent this, some programs like Microsoft(R) Excel encloses the field value in double quotes as shown below:
+If the comma is to be used as a field delimiter, the parsing will produce four values which may or may not what it is intended. But to prevent this, some programs like Microsoft (R) Excel or Apple (R)Numbers encloses the field value in double quotes as shown below:
 ```
 1, "Say Hello, world! to the world!", 3.1416
 ```
@@ -127,34 +137,34 @@ Debug.Assert(foo.IntegerProperty == 1);
 Debug.Assert(foo.StringProperty == "Say Hello, world! to the world!");
 Debug.Assert(foo.DoubleProperty == 3.1416);
 ```
-Internally, IllyumL2T uses a regular expression that can be overriden through the SplitByDelimiterRegexPattern parameter in the application configuration file (web.config for web applications).
+Internally and for splitting the field values, IllyumL2T uses a regular expression that can be overriden through the SplitByDelimiterRegexPattern parameter in the application configuration file (web.config for web applications).
 
-###FileParser
-IllyumL2T provides the `FileParser` class when the lines are to be read from a text file. The following code shows an example of how to use it:
+###DelimiterSeparatedValuesFileParser
+IllyumL2T provides the `DelimiterSeparatedValuesFileParser` class when the lines are to be read from a text file. The following code shows an example of how to use it:
 ```
 var filePath = "Orders.csv";
 using(var reader = new StreamReader(filePath))
 {
-  var fileParser = new FileParser<Order>();
+  var fileParser = new DelimiterSeparatedValuesFileParser<Order>();
   var parseResults = fileParser.Read(reader, delimiter: ',', includeHeaders: false);
   
   ...
 }
 ```
-The `FileParser` `Read` method returns an `IEnumerable<ParseResult<T>>` (in this case, `IEnumerable<ParseResult<Order>`); every line and field successfully parsed (or the condition error if not) can be found out through the corresponding `ParseResult` as described earlier.
+The `DelimiterSeparatedValuesFileParser` `Read` method returns an `IEnumerable<ParseResult<T>>` (in this case, `IEnumerable<ParseResult<Order>`); every line and field successfully parsed (or the condition error if not) can be found out through the corresponding `ParseResult` as described earlier.
 
-Of course, the `IEnumerable<ParseResult<T>>` returned by `FileParser` `Read` in combination with LINQ allows to do some fancy things like the following three examples:
+Of course, the `IEnumerable<ParseResult<T>>` returned by `DelimiterSeparatedValuesFileParser` `Read` in combination with LINQ allows to do some fancy things like the following three examples:
 ####Example I
 ```
 var filePath = "Orders.csv";
 using(var reader = new StreamReader(filePath))
 {
-  var fileParser = new FileParser<Order>();
+  var fileParser = new DelimiterSeparatedValuesFileParser<Order>();
   
   // Retrieve the orders with delivery date in the month of July...
   var orders = fileParser.Read(reader, delimiter: ',', includeHeaders: false)
                          .Select(result => result.Instance)
-                         .Where(order => order.DeliveryDate.Month = 7);
+                         .Where(order => order.DeliveryDate.Month == 7);
 }
 ```
 ####Example II
@@ -162,7 +172,7 @@ using(var reader = new StreamReader(filePath))
 var filePath = "Orders.csv";
 using(var reader = new StreamReader(filePath))
 {
-  var fileParser = new FileParser<Order>();
+  var fileParser = new DelimiterSeparatedValuesFileParser<Order>();
   
   // Retrieve the orders descending sorted by id...
   var orders = fileParser.Read(reader, delimiter: ',', includeHeaders: false)
@@ -175,12 +185,12 @@ using(var reader = new StreamReader(filePath))
 var filePath = "Orders.csv";
 using(var reader = new StreamReader(filePath))
 {
-  var fileParser = new FileParser<Order>();
+  var fileParser = new DelimiterSeparatedValuesFileParser<Order>();
   
   // Retrieve all the lines that could not be parsed successfully and the number of parsing errors...
   var lines = fileParser.Read(reader, delimiter: ',', includeHeaders: false)
                         .Where(parseResult => parseResult.Errors.Any())
-                        .Select(parseResult => new { parseResult.Line, parseResult.Errors.Count() });
+                        .Select(parseResult => new { line = parseResult.Line, errors = parseResult.Errors.Count() });
 }
 ```
 It is important to note that IllyumL2T is a utility for parsing text files, lines, and fields and it is not meant to do efficient queries, sorts, or any of the set-oriented processing that can be accomplished through other technologies and tools; the larger the file, the slower the performance. Reserve yourself some minutes to give IllyumL2T a try with your own files and let us know how it went.

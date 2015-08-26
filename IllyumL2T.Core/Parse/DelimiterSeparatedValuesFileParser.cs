@@ -4,14 +4,15 @@ using System.IO;
 using System.Linq;
 
 using IllyumL2T.Core.Interfaces;
+using IllyumL2T.Core.FieldsSplit;
 
-namespace IllyumL2T.Core
+namespace IllyumL2T.Core.Parse
 {
-  public class FileParser<T> where T : class, new()
+  public class DelimiterSeparatedValuesFileParser<T> where T : class, new()
   {
     protected ILineParser<T> _lineParser;
 
-    public FileParser()
+    public DelimiterSeparatedValuesFileParser()
     {
       _lineParser = new LineParser<T>();
     }
@@ -29,13 +30,15 @@ namespace IllyumL2T.Core
         reader.ReadLine();
       }
 
+      var fieldsSplitter = new DelimiterSeparatedValuesFieldsSplitter<T>(delimiter);
+      var lineParser = new LineParser<T>(fieldsSplitter);
+      
       while(true)
       {
         var line = reader.ReadLine();
         if(String.IsNullOrEmpty(line) == false)
         {
-          var lineParser = new LineParser<T>();
-          var parseResult = lineParser.Parse(line, delimiter);
+          var parseResult = lineParser.Parse(line);
           yield return parseResult;
         }
         else

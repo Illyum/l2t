@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 
+using IllyumL2T.Core;
+
 namespace IllyumL2T.Core.Interfaces
 {
   public interface IFieldParser

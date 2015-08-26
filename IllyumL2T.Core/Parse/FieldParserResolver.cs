@@ -5,7 +5,7 @@ using System.Linq;
 
 using IllyumL2T.Core.Interfaces;
 
-namespace IllyumL2T.Core
+namespace IllyumL2T.Core.Parse
 {
   public class FieldParserResolver
   {

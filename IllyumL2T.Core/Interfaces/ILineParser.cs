@@ -7,6 +7,6 @@ namespace IllyumL2T.Core.Interfaces
   {
     IEnumerable<IFieldParser> FieldParsers { get; }
 
-    ParseResult<T> Parse(string line, char delimiter);
+    ParseResult<T> Parse(string line);
   }
 }
