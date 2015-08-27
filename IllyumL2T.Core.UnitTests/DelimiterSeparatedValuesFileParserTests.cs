@@ -63,14 +63,11 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
           {
             writer.WriteLine();
           }
-          else
-          {
-            writer.WriteLine("{0}, {1:#0.00}, {2}, {3:dd/MM/yyyy}",
-                             order.OrderId,
-                             order.Freight,
-                             order.ShipAddress,
-                             order.DeliveryDate);
-          }
+          writer.WriteLine("{0}, {1:#0.00}, {2}, {3:dd/MM/yyyy}",
+                            order.OrderId,
+                            order.Freight,
+                            order.ShipAddress,
+                            order.DeliveryDate);
         }
       }
     }
@@ -91,12 +88,6 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
 
         // Assert
         Assert.IsTrue(_orders.SequenceEqual(parseResults.Select(parseResult => parseResult.Instance)));
-        /*
-        How the parser process empty lines?
-        Ignore and skip the empty line or return a null application object or what?
-        An alternative has already been proposed at the following push:
-        https://github.com/Illyum/l2t/blob/fe969467335a3d97ed045408c01c5df20ed284f1/IllyumL2T.Core/FileParser.cs
-        */
       }
     }
 

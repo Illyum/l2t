@@ -36,15 +36,16 @@ namespace IllyumL2T.Core.Parse
       while(true)
       {
         var line = reader.ReadLine();
-        if(String.IsNullOrEmpty(line) == false)
-        {
-          var parseResult = lineParser.Parse(line);
-          yield return parseResult;
-        }
-        else
+        if (line == null) //This is the condition to finish the iteration. Based on http://msdn.microsoft.com/en-us/library/system.io.streamreader.readline(v=vs.110).aspx
         {
           yield break;
         }
+        if (String.IsNullOrWhiteSpace(line)) //An empty line could mean a non-existing application object, not the end of the iteration.
+        {
+          continue;
+        }
+        var parseResult = lineParser.Parse(line);
+        yield return parseResult;
       }
     }
   }
