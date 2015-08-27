@@ -17,7 +17,7 @@ namespace IllyumL2T.Core.Parse
       _lineParser = new LineParser<T>();
     }
 
-    public IEnumerable<ParseResult<T>> Read(StreamReader reader, char delimiter, bool includeHeaders)
+    public IEnumerable<ParseResult<T>> Read(StreamReader reader, char delimiter, bool includeHeaders, bool skipEmptyLines = true)
     {
       if(reader == null)
       {
@@ -40,9 +40,12 @@ namespace IllyumL2T.Core.Parse
         {
           yield break;
         }
-        if (String.IsNullOrWhiteSpace(line)) //An empty line could mean a non-existing application object, not the end of the iteration.
+        if (String.IsNullOrWhiteSpace(line))
         {
-          continue;
+          if (skipEmptyLines)
+          {
+            continue;
+          }
         }
         var parseResult = lineParser.Parse(line);
         yield return parseResult;

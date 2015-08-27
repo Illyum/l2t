@@ -92,6 +92,24 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
     }
 
     [TestMethod]
+    public void ParseFileWithEmptyLineTestEmptyLineAsNullObject()
+    {
+      // Arrange
+      var ordersFilePath = Path.Combine(TestContext.DeploymentDirectory, "OrdersWithEmptyLine.csv");
+      using (var reader = new StreamReader(ordersFilePath))
+      {
+        var fileParser = new DelimiterSeparatedValuesFileParser<Order>();
+
+        // Act
+        var parseResults = fileParser.Read(reader, delimiter: ',', includeHeaders: false, skipEmptyLines: false);
+        var parsedObjects = new List<Order>(parseResults.Select(parseResult => parseResult.Instance));
+
+        // Assert
+        Assert.AreEqual<int>(_orders.Count() + 1, parsedObjects.Count);
+      }
+    }
+
+    [TestMethod]
     public void ParseFileTest()
     {
       // Arrange
