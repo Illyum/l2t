@@ -106,6 +106,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
 
         // Assert
         Assert.AreEqual<int>(_orders.Count() + 1, parsedObjects.Count);
+        Assert.AreEqual<int>(1, parsedObjects.Count(o => o == null));
       }
     }
 
