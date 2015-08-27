@@ -52,16 +52,60 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
         writer.WriteLine("10000, (89), ShipNowhere, InvalidDate"); // 2 parsing errors
         writer.WriteLine("A100A, ####, ShipNowhere, 99/99/9999");  // 3 parsing errors
       }
+
+      var ordersFileWithEmptyLinePath = Path.Combine(context.DeploymentDirectory, "OrdersWithEmptyLine.csv");
+      using (var writer = new StreamWriter(ordersFileWithEmptyLinePath))
+      {
+        for(int k=0;k< _orders.Count();++k)
+        {
+          var order = _orders.ElementAt(k);
+          if (k == 3)
+          {
+            writer.WriteLine();
+          }
+          else
+          {
+            writer.WriteLine("{0}, {1:#0.00}, {2}, {3:dd/MM/yyyy}",
+                             order.OrderId,
+                             order.Freight,
+                             order.ShipAddress,
+                             order.DeliveryDate);
+          }
+        }
+      }
     }
 
     public TestContext TestContext { get; set; }
+
+    [TestMethod]
+    public void ParseFileWithEmptyLineTest()
+    {
+      // Arrange
+      var ordersFilePath = Path.Combine(TestContext.DeploymentDirectory, "OrdersWithEmptyLine.csv");
+      using(var reader = new StreamReader(ordersFilePath))
+      {
+        var fileParser = new DelimiterSeparatedValuesFileParser<Order>();
+
+        // Act
+        var parseResults = fileParser.Read(reader, delimiter: ',', includeHeaders: false);
+
+        // Assert
+        Assert.IsTrue(_orders.SequenceEqual(parseResults.Select(parseResult => parseResult.Instance)));
+        /*
+        How the parser process empty lines?
+        Ignore and skip the empty line or return a null application object or what?
+        An alternative has already been proposed at the following push:
+        https://github.com/Illyum/l2t/blob/fe969467335a3d97ed045408c01c5df20ed284f1/IllyumL2T.Core/FileParser.cs
+        */
+      }
+    }
 
     [TestMethod]
     public void ParseFileTest()
     {
       // Arrange
       var ordersFilePath = Path.Combine(TestContext.DeploymentDirectory, "Orders.csv");
-      using(var reader = new StreamReader(ordersFilePath))
+      using (var reader = new StreamReader(ordersFilePath))
       {
         var fileParser = new DelimiterSeparatedValuesFileParser<Order>();
 
