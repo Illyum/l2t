@@ -12,11 +12,6 @@ namespace IllyumL2T.Core.Parse
   {
     protected ILineParser<T> _lineParser;
 
-    public DelimiterSeparatedValuesFileParser()
-    {
-      _lineParser = new LineParser<T>();
-    }
-
     public IEnumerable<ParseResult<T>> Read(StreamReader reader, char delimiter, bool includeHeaders, bool skipEmptyLines = true)
     {
       if(reader == null)
@@ -32,7 +27,7 @@ namespace IllyumL2T.Core.Parse
 
       var fieldsSplitter = new DelimiterSeparatedValuesFieldsSplitter<T>(delimiter);
       _lineParser = new LineParser<T>(fieldsSplitter);
-      
+
       while(true)
       {
         var line = reader.ReadLine();
