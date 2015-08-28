@@ -38,12 +38,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FieldsSplit\FieldsSplitterBase.cs" />
+    <Compile Include="FieldsSplit\FixedWidthValuesFieldsSplitter.cs" />
     <Compile Include="Parse\FieldParser.cs" />
     <Compile Include="Parse\FieldParserResolver.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Interfaces\IFieldParser.cs" />
     <Compile Include="Interfaces\ILineParser.cs" />
+    <Compile Include="Parse\FileParserBase.cs" />
+    <Compile Include="Parse\FixedWidthValuesFileParser.cs" />
     <Compile Include="Parse\LineParser.cs" />
     <Compile Include="Parse\ParseBehaviorAttribute.cs" />
     <Compile Include="Parse\DelimiterSeparatedValuesFileParser.cs" />
