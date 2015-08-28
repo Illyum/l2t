@@ -4,6 +4,7 @@ using System.IO;
 using System.Collections.Generic;
 using IllyumL2T.Core.Interfaces;
 using IllyumL2T.Core.Parse;
+using IllyumL2T.Core.FieldsSplit.FieldsSplit;
 
 namespace IllyumL2T.Core.FieldsSplit.Marshal
 {
@@ -16,8 +17,11 @@ namespace IllyumL2T.Core.FieldsSplit.Marshal
         throw new ArgumentNullException("BinaryReader reader");
       }
 
-      var fieldsSplitter = new DelimiterSeparatedValuesFieldsSplitter<T>(delimiter);
-      var lineParser = new LineParser<T>(fieldsSplitter);
+      var lineParser = new LineParser<T>(new FixedWidthValuesFieldsSplitter<T>());
+      //var parseResult = lineParser.Parse(line);
+      //yield return parseResult;
+
+      //reader.ReadChars() ->PacketReader
 
       //IPacketReader input = new PacketReader(reader);
       //var marshaler = new BinaryFixedWidthMarshaler<T>();

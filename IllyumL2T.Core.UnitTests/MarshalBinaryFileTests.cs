@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using IllyumL2T.Core.FieldsSplit.Marshal;
+using IllyumL2T.Core.FieldsSplit.UnitTests.Classes_for_Testing;
+using System;
 
 namespace IllyumL2T.Core.FieldsSplit.UnitTests
 {
@@ -12,12 +14,18 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
     public void BinaryFileMarshalerTests()
     {
       // Arrange
-      var frame = new System.IO.MemoryStream(new byte[] { 0x31, 0x39, 0x35, 0x20, 0x20, 0x32, 0x36, 0x41, 0x42, 0x43 }); //For now, each value represented as a string. 
+      var frame = new System.IO.MemoryStream(new byte[] { 0x01, 0x09, 0x35, 0x20, 0x20, 0x32, 0x36, 0x41, 0x42, 0x43 }); //For now, each value represented as a string. 
 
       // Act
       List<Record> parsed_objects;
       using (var reader = new System.IO.BinaryReader(frame))
       {
+        Type type = typeof(Record);
+        int size= type.GetProperties().Select(p => (IllyumL2T.Core.ParseBehaviorAttribute)p.GetCustomAttributes(typeof(IllyumL2T.Core.ParseBehaviorAttribute), true).First()).Where(attr => attr.Length > 0).Sum(a => a.Length);
+        char[] chars = reader.ReadChars(size);
+        Assert.AreEqual<string>("195  26ABC", new string(chars));
+        return;
+
         var fileMarshaler = new BinaryFileMarshaler<Record>();
         var parseResults = fileMarshaler.Read(reader, delimiter: ',', includeHeaders: false);
         parsed_objects = new List<Record>(parseResults.Select(result => result.Instance));
@@ -34,22 +42,4 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
       Assert.AreEqual<string>("ABC", parsed_objects[0].Label);
     }
   }
-
-  /* Provisional place for the following declarations */
-
-
-
-  #region Input case 
-  /// <summary> 
-  /// Application-level objects serialized as raw data packets for TCP transmission or for binary storage. 
-  /// </summary> 
-  public class Record
-  {
-    [IllyumL2T.Core.ParseBehavior(Length = 2)] public ushort Type { get; set; }
-    [IllyumL2T.Core.ParseBehavior(Length = 1)] public byte Category { get; set; }
-    [IllyumL2T.Core.ParseBehavior(Length = 4)] public uint ID { get; set; }
-    [IllyumL2T.Core.ParseBehavior(Length = 3)] public string Label { get; set; }
-  }
-
-  #endregion
 }
