@@ -18,6 +18,8 @@ namespace IllyumL2T.Core
 
     public string Pattern { get; set; }
 
+    public int Length { get; set; }
+
     public ParseBehaviorAttribute()
       : this
         (
@@ -25,7 +27,8 @@ namespace IllyumL2T.Core
           numberStyle: NumberStyles.None,
           dateTimeStyle: DateTimeStyles.None,
           dateTimeFormat: null,
-          pattern: null
+          pattern: null,
+          length: int.MinValue
         )
     {
     }
@@ -36,7 +39,8 @@ namespace IllyumL2T.Core
       NumberStyles numberStyle,
       DateTimeStyles dateTimeStyle,
       string dateTimeFormat,
-      string pattern
+      string pattern,
+      int length
     )
     {
       CultureName = cultureName;
@@ -44,6 +48,7 @@ namespace IllyumL2T.Core
       DateTimeStyle = dateTimeStyle;
       DateTimeFormat = dateTimeFormat;
       Pattern = pattern;
+      Length = length;
     }
   }
 }
