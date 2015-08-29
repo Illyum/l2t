@@ -11,8 +11,8 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
   [TestClass]
   public class FixedWidthValuesFileParserTests
   {
-    [TestMethod]
-    public void ParseLineTestOneLine()
+    [TestMethod, TestCategory("FixedWidth")]
+    public void ParseOneFixedWidthLine()
     {
       // Arrange
       TextReader reader = new StringReader("1950026ABC");
@@ -32,8 +32,29 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
       Assert.AreEqual<string>("ABC", parsedObjects[0].Label);
     }
 
-    [TestMethod]
-    public void ParseLineTestTwoLines()
+    [TestMethod, TestCategory("FixedWidth")]
+    public void ParseOneFixedWidthLineWithTrimInput()
+    {
+      // Arrange
+      TextReader reader = new StringReader("195  26ABC");
+      var fileParser = new FixedWidthValuesFileParser<Record>();
+
+      // Act
+      var parseResults = fileParser.Read(reader, includeHeaders: false);
+      var parsedObjects = new List<Record>(parseResults.Select(parseResult => parseResult.Instance));
+
+      // Assert
+      Assert.IsNotNull(parsedObjects);
+      Assert.AreEqual<int>(1, parsedObjects.Count());
+      Assert.IsNotNull(parsedObjects[0]);
+      Assert.AreEqual<ushort>(19, parsedObjects[0].Type);
+      Assert.AreEqual<byte>(5, parsedObjects[0].Category);
+      Assert.AreEqual<uint>(26, parsedObjects[0].ID);
+      Assert.AreEqual<string>("ABC", parsedObjects[0].Label);
+    }
+
+    [TestMethod, TestCategory("FixedWidth")]
+    public void ParseTwoFixedWidthLines()
     {
       // Arrange
       var lines = new StringBuilder();
@@ -43,7 +64,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
       var fileParser = new FixedWidthValuesFileParser<Record>();
 
       // Act
-      var parseResults = fileParser.Read(reader, includeHeaders: false);
+      var parseResults = fileParser.Read(reader, includeHeaders: false, trimInput: false);
       var parsedObjects = new List<Record>(parseResults.Select(parseResult => parseResult.Instance));
 
       // Assert
