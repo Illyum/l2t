@@ -22,8 +22,11 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
       {
         Type type = typeof(Record);
         int size= type.GetProperties().Select(p => (IllyumL2T.Core.ParseBehaviorAttribute)p.GetCustomAttributes(typeof(IllyumL2T.Core.ParseBehaviorAttribute), true).First()).Where(attr => attr.Length > 0).Sum(a => a.Length);
-        char[] chars = reader.ReadChars(size);
-        Assert.AreEqual<string>("195  26ABC", new string(chars));
+        //char[] chars = reader.ReadChars(size);
+        //Assert.AreEqual<string>("195  26ABC", new string(chars));
+        byte[] bytes = reader.ReadBytes(size);
+        Assert.AreEqual<int>(size, bytes.Length);
+        Assert.IsTrue(frame.ToArray().SequenceEqual(bytes));
         return;
 
         var fileMarshaler = new BinaryFileMarshaler<Record>();
