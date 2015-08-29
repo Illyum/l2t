@@ -39,6 +39,7 @@
   <ItemGroup>
     <Compile Include="FieldsSplit\FieldsSplitterBase.cs" />
     <Compile Include="FieldsSplit\FixedWidthValuesFieldsSplitter.cs" />
+    <Compile Include="Marshal\BinaryFileMarshaler.cs" />
     <Compile Include="Parse\FieldParser.cs" />
     <Compile Include="Parse\FieldParserResolver.cs">
       <SubType>Code</SubType>

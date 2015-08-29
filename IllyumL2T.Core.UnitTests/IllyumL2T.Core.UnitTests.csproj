@@ -63,6 +63,7 @@
     <Compile Include="LineParserTests.cs" />
     <Compile Include="Classes for Testing\Order.cs" />
     <Compile Include="DelimiterSeparatedValuesFileParserTests.cs" />
+    <Compile Include="MarshalBinaryFileTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DelimiterSeparatedValuesFieldsSplitterTests.cs" />
     <Compile Include="FixedWidthValuesFileParserTests.cs" />
