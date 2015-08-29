@@ -348,6 +348,22 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
     }
 
     [TestMethod]
+    public void ParseTrimInputInt16Test()
+    {
+      // Arrange
+      var propertyName = "Int16Property";
+      var propertyInfo = typeof(Foo).GetProperties().Single(p => p.Name == propertyName);
+
+      // Act
+      var fieldParser = new FieldParser(propertyInfo, trimInput: true);
+      var actual = fieldParser.Parse(" 1234");
+
+      // Assert
+      Assert.IsNotNull(actual);
+      Assert.IsFalse(fieldParser.Errors.Any());
+    }
+
+    [TestMethod]
     public void ParseInt16OverflowTest()
     {
       // Arrange

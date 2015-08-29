@@ -10,13 +10,13 @@ namespace IllyumL2T.Core.FieldsSplit
   {
     public IFieldParser[] FieldParsers { get; private set; }
 
-    public FieldsSplitterBase()
+    public FieldsSplitterBase(bool trimInput = false)
     {
       var typeProperties = typeof(T).GetProperties();
       FieldParsers = new IFieldParser[typeProperties.Length];
       for(int i = 0; i < typeProperties.Length; i++)
       {
-        FieldParsers[i] = new FieldParser(typeProperties[i]);
+        FieldParsers[i] = new FieldParser(typeProperties[i], trimInput);
       }
     }
 
