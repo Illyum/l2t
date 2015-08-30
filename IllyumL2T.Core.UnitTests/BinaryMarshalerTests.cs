@@ -8,10 +8,10 @@ using System;
 namespace IllyumL2T.Core.FieldsSplit.UnitTests
 {
   [TestClass]
-  public class BinaryMarshalerTests
+  public class BinaryDeserializerTests
   {
-    [TestMethod, TestCategory("BinaryMarshaling")]
-    public void SimpleMarshaling1()
+    [TestMethod, TestCategory("BinaryUnmarshaling")]
+    public void SimpleUnmarshaling1()
     {
       // Arrange
       var frame = new System.IO.MemoryStream(new byte[] { 0x01, 0x09, 0x35, 0x20, 0x20, 0x32, 0x36, 0x41, 0x42, 0x43 }); //For now, each value represented as a string. 
@@ -20,8 +20,8 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
       List<Record> parsed_objects;
       using (var reader = new System.IO.BinaryReader(frame))
       {
-        var fileMarshaler = new BinaryMarshaler<Record>();
-        var parseResults = fileMarshaler.Read(reader, delimiter: ',', includeHeaders: false);
+        var fileMarshaler = new BinaryDeserializer<Record>();
+        var parseResults = fileMarshaler.Deserialize(reader);
         parsed_objects = new List<Record>(parseResults.Select(result => result.Instance));
       }
 
@@ -35,8 +35,8 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
       Assert.AreEqual<string>("ABC", parsed_objects[0].Label);
     }
 
-    [TestMethod, TestCategory("BinaryMarshaling")]
-    public void Byte_vs_Chars_DiffAwareness()
+    [TestMethod, TestCategory("BinaryUnmarshaling")]
+    public void Bytes_vs_Chars_DifferenceAwareness_SimpleCase1()
     {
       // Arrange
       string lastname = "López";

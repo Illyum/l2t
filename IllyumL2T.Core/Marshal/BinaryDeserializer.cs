@@ -8,16 +8,16 @@ using IllyumL2T.Core.FieldsSplit.FieldsSplit;
 
 namespace IllyumL2T.Core.FieldsSplit.Marshal
 {
-  public class BinaryMarshaler<T> where T : class, new()
+  public class BinaryDeserializer<T> where T : class, new()
   {
-    public IEnumerable<ParseResult<T>> Read(BinaryReader reader, char delimiter, bool includeHeaders, bool skipEmptyLines = true)
+    public IEnumerable<ParseResult<T>> Deserialize(BinaryReader reader)
     {
       if (reader == null)
       {
         throw new ArgumentNullException("BinaryReader reader");
       }
 
-      var lineParser = new LineParser<T>(new FixedWidthValuesFieldsSplitter<T>());
+      //var lineParser = new LineParser<T>(new FixedWidthValuesFieldsSplitter<T>());
       //var parseResult = lineParser.Parse(line);
       //yield return parseResult;
 
