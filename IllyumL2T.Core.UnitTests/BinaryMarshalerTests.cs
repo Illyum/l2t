@@ -20,23 +20,6 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
       List<Record> parsed_objects;
       using (var reader = new System.IO.BinaryReader(frame))
       {
-
-        var b1 = System.Text.Encoding.GetEncoding("ISO-8859-1").GetBytes("López");
-        Assert.AreEqual<int>(5, b1.Length);
-        var b2 = System.Text.Encoding.UTF8.GetBytes("óóóóó");
-        Assert.AreEqual<int>(10, b2.Length);
-        //Assert.IsTrue((new byte[] { 0x4C }).SequenceEqual(b));
-        return;
-
-        Type type = typeof(Record);
-        int size= type.GetProperties().Select(p => (IllyumL2T.Core.ParseBehaviorAttribute)p.GetCustomAttributes(typeof(IllyumL2T.Core.ParseBehaviorAttribute), true).First()).Where(attr => attr.Length > 0).Sum(a => a.Length);
-        //char[] chars = reader.ReadChars(size);
-        //Assert.AreEqual<string>("195  26ABC", new string(chars));
-        byte[] bytes = reader.ReadBytes(size);
-        Assert.AreEqual<int>(size, bytes.Length);
-        Assert.IsTrue(frame.ToArray().SequenceEqual(bytes));
-        return;
-
         var fileMarshaler = new BinaryMarshaler<Record>();
         var parseResults = fileMarshaler.Read(reader, delimiter: ',', includeHeaders: false);
         parsed_objects = new List<Record>(parseResults.Select(result => result.Instance));
@@ -50,6 +33,23 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
       Assert.AreEqual<byte>(5, parsed_objects[0].Category);
       Assert.AreEqual<uint>(26, parsed_objects[0].ID);
       Assert.AreEqual<string>("ABC", parsed_objects[0].Label);
+    }
+
+    [TestMethod, TestCategory("BinaryMarshaling")]
+    public void Byte_vs_Chars_DiffAwareness()
+    {
+      // Arrange
+      string lastname = "López";
+      System.Text.Encoding latin1 = System.Text.Encoding.GetEncoding("ISO-8859-1");
+      System.Text.Encoding utf8 = System.Text.Encoding.UTF8;
+
+      // Act
+      var latin1_bytes = latin1.GetBytes(lastname);
+      var utf8_bytes = utf8.GetBytes(lastname);
+
+      // Assert
+      Assert.AreEqual<int>(5, latin1_bytes.Length);
+      Assert.AreEqual<int>(6, utf8_bytes.Length);
     }
   }
 }
