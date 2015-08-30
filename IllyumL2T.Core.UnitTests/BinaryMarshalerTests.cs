@@ -8,10 +8,10 @@ using System;
 namespace IllyumL2T.Core.FieldsSplit.UnitTests
 {
   [TestClass]
-  public class MarshalBinaryFileTests
+  public class BinaryMarshalerTests
   {
     [TestMethod, TestCategory("BinaryMarshaling")]
-    public void BinaryFileMarshalerTests()
+    public void SimpleMarshaling1()
     {
       // Arrange
       var frame = new System.IO.MemoryStream(new byte[] { 0x01, 0x09, 0x35, 0x20, 0x20, 0x32, 0x36, 0x41, 0x42, 0x43 }); //For now, each value represented as a string. 
@@ -20,6 +20,14 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
       List<Record> parsed_objects;
       using (var reader = new System.IO.BinaryReader(frame))
       {
+
+        var b1 = System.Text.Encoding.GetEncoding("ISO-8859-1").GetBytes("López");
+        Assert.AreEqual<int>(5, b1.Length);
+        var b2 = System.Text.Encoding.UTF8.GetBytes("óóóóó");
+        Assert.AreEqual<int>(10, b2.Length);
+        //Assert.IsTrue((new byte[] { 0x4C }).SequenceEqual(b));
+        return;
+
         Type type = typeof(Record);
         int size= type.GetProperties().Select(p => (IllyumL2T.Core.ParseBehaviorAttribute)p.GetCustomAttributes(typeof(IllyumL2T.Core.ParseBehaviorAttribute), true).First()).Where(attr => attr.Length > 0).Sum(a => a.Length);
         //char[] chars = reader.ReadChars(size);
@@ -29,7 +37,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
         Assert.IsTrue(frame.ToArray().SequenceEqual(bytes));
         return;
 
-        var fileMarshaler = new BinaryFileMarshaler<Record>();
+        var fileMarshaler = new BinaryMarshaler<Record>();
         var parseResults = fileMarshaler.Read(reader, delimiter: ',', includeHeaders: false);
         parsed_objects = new List<Record>(parseResults.Select(result => result.Instance));
       }

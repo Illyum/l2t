@@ -8,7 +8,7 @@ using IllyumL2T.Core.FieldsSplit.FieldsSplit;
 
 namespace IllyumL2T.Core.FieldsSplit.Marshal
 {
-  public class BinaryFileMarshaler<T> where T : class, new()
+  public class BinaryMarshaler<T> where T : class, new()
   {
     public IEnumerable<ParseResult<T>> Read(BinaryReader reader, char delimiter, bool includeHeaders, bool skipEmptyLines = true)
     {
