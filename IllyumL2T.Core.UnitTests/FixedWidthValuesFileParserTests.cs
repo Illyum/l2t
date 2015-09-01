@@ -83,5 +83,27 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
       Assert.AreEqual<uint>(26, parsedObjects[1].ID);
       Assert.AreEqual<string>("ABC", parsedObjects[1].Label);
     }
+
+    [TestMethod, TestCategory("FixedWidth")]
+    public void ParseIncompleteFixedWidthLine()
+    {
+      // Arrange
+      ushort type = 0;
+      byte category = 2;
+      string line = $"{type:00}{category}";
+      var reader = new StringReader(line);
+      var fileParser = new FixedWidthValuesFileParser<Record>();
+
+      // Act
+      var parseResults = fileParser.Read(reader, includeHeaders: false, trimInput: false);
+      var parsedObjects = new List<Record>(parseResults.Select(parseResult => parseResult.Instance));
+
+      // Assert
+      Assert.AreEqual<int>(1, parsedObjects.Count);
+      Assert.AreEqual<ushort>(type, parsedObjects[0].Type);
+      Assert.AreEqual<byte>(category, parsedObjects[0].Category);
+      Assert.AreEqual<uint>(0, parsedObjects[0].ID);
+      Assert.AreEqual<string>(null, parsedObjects[0].Label);
+    }
   }
 }
