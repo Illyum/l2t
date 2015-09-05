@@ -1,4 +1,4 @@
-﻿namespace IllyumL2T.Core.FieldsSplit.UnitTests.Classes_for_Testing
+﻿namespace IllyumL2T.Core.FieldsSplit.UnitTests
 {
   public class Record
   {
