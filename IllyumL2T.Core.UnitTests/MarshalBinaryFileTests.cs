@@ -21,6 +21,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
         var fileMarshaler = new BinaryFileMarshaler<Record>();
         var parseResults = fileMarshaler.Read(reader, delimiter: ',', includeHeaders: false);
         parsed_objects = new List<Record>(parseResults.Select(result => result.Instance));
+        //parsed_objects = parseResults.Aggregate(new List<Record>(), (whole, next) => { whole.Add(next.Instance); return whole; });
       }
 
       // Assert
