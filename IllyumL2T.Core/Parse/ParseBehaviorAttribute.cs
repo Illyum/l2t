@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Globalization;
 
+using IllyumL2T.Core.Interfaces;
+
 namespace IllyumL2T.Core
 {
   [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
