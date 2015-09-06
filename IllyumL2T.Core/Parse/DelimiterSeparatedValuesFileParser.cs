@@ -31,8 +31,8 @@ namespace IllyumL2T.Core.Parse
       }
 
       var fieldsSplitter = new DelimiterSeparatedValuesFieldsSplitter<T>(delimiter);
-      _lineParser = new LineParser<T>(fieldsSplitter);
-
+      var lineParser = new LineParser<T>(fieldsSplitter);
+      
       while(true)
       {
         var line = reader.ReadLine();
@@ -47,7 +47,7 @@ namespace IllyumL2T.Core.Parse
             continue;
           }
         }
-        var parseResult = _lineParser.Parse(line);
+        var parseResult = lineParser.Parse(line);
         yield return parseResult;
       }
     }
