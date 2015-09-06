@@ -66,7 +66,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DelimiterSeparatedValuesFieldsSplitterTests.cs" />
     <Compile Include="FixedWidthValuesFileParserTests.cs" />
-    <Compile Include="FixedWidthValuesFieldsSplitterTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\IllyumL2T.Core\IllyumL2T.Core.csproj">
