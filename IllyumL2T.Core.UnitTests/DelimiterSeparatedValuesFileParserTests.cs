@@ -2,7 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.IO;
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+using Moq;
+
+using IllyumL2T.Core.FieldsSplit;
 using IllyumL2T.Core.Parse;
 
 namespace IllyumL2T.Core.FieldsSplit.UnitTests
@@ -47,70 +52,16 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
         writer.WriteLine("10000, (89), ShipNowhere, InvalidDate"); // 2 parsing errors
         writer.WriteLine("A100A, ####, ShipNowhere, 99/99/9999");  // 3 parsing errors
       }
-
-      var ordersFileWithEmptyLinePath = Path.Combine(context.DeploymentDirectory, "OrdersWithEmptyLine.csv");
-      using (var writer = new StreamWriter(ordersFileWithEmptyLinePath))
-      {
-        for(int k=0;k< _orders.Count();++k)
-        {
-          var order = _orders.ElementAt(k);
-          if (k == 3)
-          {
-            writer.WriteLine();
-          }
-          writer.WriteLine("{0}, {1:#0.00}, {2}, {3:dd/MM/yyyy}",
-                            order.OrderId,
-                            order.Freight,
-                            order.ShipAddress,
-                            order.DeliveryDate);
-        }
-      }
     }
 
     public TestContext TestContext { get; set; }
-
-    [TestMethod]
-    public void ParseFileWithEmptyLineTest()
-    {
-      // Arrange
-      var ordersFilePath = Path.Combine(TestContext.DeploymentDirectory, "OrdersWithEmptyLine.csv");
-      using(var reader = new StreamReader(ordersFilePath))
-      {
-        var fileParser = new DelimiterSeparatedValuesFileParser<Order>();
-
-        // Act
-        var parseResults = fileParser.Read(reader, delimiter: ',', includeHeaders: false);
-
-        // Assert
-        Assert.IsTrue(_orders.SequenceEqual(parseResults.Select(parseResult => parseResult.Instance)));
-      }
-    }
-
-    [TestMethod]
-    public void ParseFileWithEmptyLineTestEmptyLineAsNullObject()
-    {
-      // Arrange
-      var ordersFilePath = Path.Combine(TestContext.DeploymentDirectory, "OrdersWithEmptyLine.csv");
-      using (var reader = new StreamReader(ordersFilePath))
-      {
-        var fileParser = new DelimiterSeparatedValuesFileParser<Order>();
-
-        // Act
-        var parseResults = fileParser.Read(reader, delimiter: ',', includeHeaders: false, skipEmptyLines: false);
-        var parsedObjects = new List<Order>(parseResults.Select(parseResult => parseResult.Instance));
-
-        // Assert
-        Assert.AreEqual<int>(_orders.Count() + 1, parsedObjects.Count);
-        Assert.AreEqual<int>(1, parsedObjects.Count(o => o == null));
-      }
-    }
 
     [TestMethod]
     public void ParseFileTest()
     {
       // Arrange
       var ordersFilePath = Path.Combine(TestContext.DeploymentDirectory, "Orders.csv");
-      using (var reader = new StreamReader(ordersFilePath))
+      using(var reader = new StreamReader(ordersFilePath))
       {
         var fileParser = new DelimiterSeparatedValuesFileParser<Order>();
 
