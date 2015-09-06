@@ -32,7 +32,7 @@ namespace IllyumL2T.Core.Parse
 
       var fieldsSplitter = new DelimiterSeparatedValuesFieldsSplitter<T>(delimiter);
       _lineParser = new LineParser<T>(fieldsSplitter);
-      
+
       while(true)
       {
         var line = reader.ReadLine();
