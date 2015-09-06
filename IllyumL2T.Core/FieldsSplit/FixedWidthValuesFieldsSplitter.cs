@@ -10,7 +10,7 @@ namespace IllyumL2T.Core.FieldsSplit.FieldsSplit
   {
     private IEnumerable<int> propertyLengths;
 
-    public FixedWidthValuesFieldsSplitter(bool trimInput = true) : base(trimInput)
+    public FixedWidthValuesFieldsSplitter()
     {
       propertyLengths = GetPropertyLengths(typeof(T));
     }

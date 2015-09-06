@@ -12,13 +12,12 @@ namespace IllyumL2T.Core.Parse
   public class FieldParser : IFieldParser
   {
     protected Func<IFieldParser, object> _parseMethod;
-    protected bool trimInput;
 
-    public FieldParser(PropertyInfo propertyInfo, bool trimInput = false)
+    public FieldParser(PropertyInfo propertyInfo)
     {
       FieldName = propertyInfo.Name;
       FieldType = propertyInfo.PropertyType;
-      this.trimInput = trimInput;
+
       //
       // Look for the ParseBehaviorAttribute if there is one defined for the property.
       // If not, create a new with its defaults...
@@ -63,7 +62,7 @@ namespace IllyumL2T.Core.Parse
       //
       // First off, we make a copy of the input we are about to parse...
       //
-      FieldInput = trimInput? input.Trim() : input;
+      FieldInput = input;
 
       //
       // ...then we reset the previous value if we are reusing the same FieldParser...
