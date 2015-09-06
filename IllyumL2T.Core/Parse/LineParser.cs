@@ -33,19 +33,6 @@ namespace IllyumL2T.Core.Parse
     public ParseResult<T> Parse(string line)
     {
       //
-      // An empty line means a null instance. It is not the default. The default skips empty lines.
-      // When tracking empty lines becomes relevant then the default can be changed with the optional skipEmptyLines parameter of the DelimiterSeparatedValuesFileParser.Read method.
-      //
-      if (line == string.Empty)
-      {
-        return new ParseResult<T>()
-        {
-          Line = line,
-          Instance = default(T)
-        };
-      }
-
-      //
       // This is a new parse so reset everything...
       //
       var parseResult = new ParseResult<T>()
