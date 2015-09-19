@@ -49,7 +49,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
           writeOrder(order, writer);
         }
         writer.WriteLine(); //Empty line inserted in the middle of the order lines.
-        foreach (var order in _orders.TakeWhile(order => order.OrderId > HowManyOrders / 2))
+        foreach (var order in _orders.SkipWhile(order => order.OrderId <= HowManyOrders / 2))
         {
           writeOrder(order, writer);
         }
