@@ -14,6 +14,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
   {
     const int HowManyOrders = 10;
     const string OrdersFile = "OrdersWithEmptyLine.csv";
+
     static IEnumerable<Order> _orders;
 
     [ClassInitialize]
