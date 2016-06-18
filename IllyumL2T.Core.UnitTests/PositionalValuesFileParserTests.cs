@@ -59,28 +59,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
         var parseResults = fileParser.Read(reader, includeHeaders: false);
 
         // Assert
-        //var results = new List<ParseResult<SimpleOrder>>(parseResults);
         Assert.IsTrue(_orders.SequenceEqual(parseResults.Select(parseResult => parseResult.Instance)));
-
-        //int k = 0;
-        //foreach (var r in parseResults)
-        //{
-        //  Assert.IsNotNull(_orders.ElementAt(k));
-        //  Assert.IsNotNull(r.Instance);
-        //  Assert.AreEqual<short>(_orders.ElementAt(k).OrderId, r.Instance.OrderId);
-        //  Assert.AreEqual<decimal>(_orders.ElementAt(k).Freight, r.Instance.Freight);
-        //  Assert.AreEqual<DateTime>(_orders.ElementAt(k).DeliveryDate, r.Instance.DeliveryDate);
-        //  Assert.AreEqual<string>(_orders.ElementAt(k).ShipAddress, r.Instance.ShipAddress);
-        //  ++k;
-        //}
-
-        //System.Diagnostics.Trace.WriteLine("All results: " + results.Count());
-        //System.Diagnostics.Trace.WriteLine("Instances: " + results.Count(r => r.Instance != null));
-        //System.Diagnostics.Trace.WriteLine("With errors: " + results.Sum(r => r.Errors?.Count()));
-
-        //System.Diagnostics.Trace.WriteLine(results.Aggregate(new System.Text.StringBuilder(), (whole, next) => whole.Append($"\nOrderId: {next.Instance.OrderId} | Errors: {(next.Errors != null ? next.Errors.Count().ToString() : "-")}")).ToString());
-        //        Assert.IsTrue(false,results.Aggregate(new System.Text.StringBuilder(), (whole, next) => whole.AppendFormat("[{0}]", next.Errors.Aggregate(new System.Text.StringBuilder(), (whole2, next2) => whole2.AppendFormat(">{0}<", next2)).ToString())).ToString());
-        //Assert.IsTrue(false);
       }
     }
   }

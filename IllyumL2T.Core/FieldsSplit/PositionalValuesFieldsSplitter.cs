@@ -17,7 +17,7 @@ namespace IllyumL2T.Core.FieldsSplit
       {
         int field_length = fieldParser.ParseBehavior.Length;
         //result.Add(line.Substring(index, field_length));
-        result.Add(line.Substring(index, field_length).Trim());
+        result.Add(line.Substring(index, field_length).Trim()); //There is analysis to do with this Trim
         index += field_length;
       }
 
