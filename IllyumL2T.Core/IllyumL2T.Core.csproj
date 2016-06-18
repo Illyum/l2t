@@ -48,6 +48,7 @@
     <Compile Include="Parse\ParseBehaviorAttribute.cs" />
     <Compile Include="Parse\DelimiterSeparatedValuesFileParser.cs" />
     <Compile Include="Parse\ParseResult.cs" />
+    <Compile Include="Parse\PositionalValuesFileParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="FieldsSplit\DelimiterSeparatedValuesFieldsSplitter.cs" />
   </ItemGroup>
