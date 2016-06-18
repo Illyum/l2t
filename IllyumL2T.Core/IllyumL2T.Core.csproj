@@ -38,6 +38,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FieldsSplit\FieldsSplitterBase.cs" />
+    <Compile Include="FieldsSplit\PositionalValuesFieldsSplitter.cs" />
     <Compile Include="Parse\FieldParser.cs" />
     <Compile Include="Parse\FieldParserResolver.cs">
       <SubType>Code</SubType>
