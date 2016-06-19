@@ -13,8 +13,7 @@ namespace IllyumL2T.Core.Parse
     FieldsSplitterBase<T> _fieldsSplitter;
     List<string> _parseErrors;
 
-    public LineParser()
-      : this(new DelimiterSeparatedValuesFieldsSplitter<T>(delimiter: ','))
+    public LineParser() : this(new DelimiterSeparatedValuesFieldsSplitter<T>(delimiter: ','))
     {
     }
 
