@@ -18,13 +18,13 @@ namespace IllyumL2T.Core.Parse
 
     public IEnumerable<ParseResult<T>> Read(StreamReader reader, char delimiter, bool includeHeaders)
     {
-      return Read(reader, includeHeaders: includeHeaders, delimiter: delimiter);
+      return ReadAsTemplateMethod(reader, includeHeaders: includeHeaders, delimiter: delimiter);
     }
     public IEnumerable<ParseResult<T>> Read(StreamReader reader, bool includeHeaders)
     {
-      return Read(reader, includeHeaders: includeHeaders);
+      return ReadAsTemplateMethod(reader, includeHeaders: includeHeaders);
     }
-    protected IEnumerable<ParseResult<T>> Read(StreamReader reader, bool includeHeaders, char? delimiter = null)
+    protected IEnumerable<ParseResult<T>> ReadAsTemplateMethod(StreamReader reader, bool includeHeaders, char? delimiter = null)
     {
       if (reader == null)
       {
