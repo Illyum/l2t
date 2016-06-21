@@ -20,10 +20,21 @@ namespace IllyumL2T.Core.Parse
     {
       return ReadAsTemplateMethod(reader, includeHeaders: includeHeaders, delimiter: delimiter);
     }
+
     public IEnumerable<ParseResult<T>> Read(StreamReader reader, bool includeHeaders)
     {
       return ReadAsTemplateMethod(reader, includeHeaders: includeHeaders);
     }
+
+    /// <summary>
+    /// Defines the abstract (basic) structure of the parsing algorithm. The specific field splitting policy is deferred to subclasses.
+    /// By Template Method we mean, quote: Define the skeleton of an algorithm in an operation, deferring some steps to subclasses. Template Method lets subclasses redefine certain steps of an algorithm without changing the algorithm's structure.
+    /// http://www.dofactory.com/net/template-method-design-pattern
+    /// </summary>
+    /// <param name="reader">Input stream of text lines.</param>
+    /// <param name="includeHeaders">Are there headers in the first input line?</param>
+    /// <param name="delimiter">Optional. Used for the case of delimited field splitting policy.</param>
+    /// <returns>Iterator with the parsed results.</returns>
     protected IEnumerable<ParseResult<T>> ReadAsTemplateMethod(StreamReader reader, bool includeHeaders, char? delimiter = null)
     {
       if (reader == null)
