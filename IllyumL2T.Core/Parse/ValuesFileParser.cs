@@ -26,6 +26,11 @@ namespace IllyumL2T.Core.Parse
       return ReadAsTemplateMethod(reader, includeHeaders: includeHeaders);
     }
 
+    public IEnumerable<ParseResult<T>> Read(BinaryReader reader, bool includeHeaders)
+    {
+      return null;//no implementation so far, first let's discuss about specification a little bit.
+    }
+
     /// <summary>
     /// Defines the abstract (basic) structure of the parsing algorithm. The specific field splitting policy is deferred to subclasses.
     /// By Template Method we mean, quote: Define the skeleton of an algorithm in an operation, deferring some steps to subclasses. Template Method lets subclasses redefine certain steps of an algorithm without changing the algorithm's structure.
