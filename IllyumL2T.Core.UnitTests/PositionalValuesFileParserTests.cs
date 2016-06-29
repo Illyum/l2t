@@ -16,6 +16,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
     [ClassInitialize]
     public static void InitializeClass(TestContext context)
     {
+      //var shipAddress = $"{("Address A"),-50}";
       var shipAddress = "Address A";
       var dateTime = new DateTime(2010, 10, 10);
 
@@ -62,30 +63,5 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
         Assert.IsTrue(_orders.SequenceEqual(parseResults.Select(parseResult => parseResult.Instance)));
       }
     }
-
-    #region About parsing network stream byte frames
-    class FrameMessage
-    {
-      [ParseBehavior(Length = 2)] public short Amount { get; set; }
-    }
-
-    [TestMethod]
-    public void Parse_a_binary_frame()
-    {
-      // Arrange
-      short amount = 12345;
-      var bytes = BitConverter.GetBytes(amount);
-      using (var reader = new BinaryReader(new MemoryStream(bytes)))
-      {
-        var fileParser = new PositionalValuesFileParser<FrameMessage>();
-
-        // Act
-        var parseResults = fileParser.Read(reader, includeHeaders: false);
-
-        // Assert
-        Assert.AreEqual<short>(amount, parseResults.First().Instance.Amount);
-      }
-    }
-    #endregion
   }
 }
