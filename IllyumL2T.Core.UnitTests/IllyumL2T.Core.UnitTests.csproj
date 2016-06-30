@@ -55,6 +55,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Classes for Testing\BadRecords.cs" />
     <Compile Include="Classes for Testing\Foo.cs" />
     <Compile Include="Classes for Testing\SimpleOrder.cs" />
     <Compile Include="FieldParserTests.cs" />

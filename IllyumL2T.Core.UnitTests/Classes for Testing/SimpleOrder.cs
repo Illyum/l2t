@@ -33,10 +33,15 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
 
     public override int GetHashCode()
     {
-      return OrderId.GetHashCode() +
-             Freight.GetHashCode() +
-             ShipAddress.GetHashCode() +
-             DeliveryDate.GetHashCode();
+      int result =
+        OrderId.GetHashCode() +
+        Freight.GetHashCode() +
+        DeliveryDate.GetHashCode();
+      if (ShipAddress != null)
+      {
+        result += ShipAddress.GetHashCode();
+      }
+      return result;
     }
   }
 }
