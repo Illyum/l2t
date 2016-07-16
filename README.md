@@ -2,6 +2,7 @@
 
 ##A parser to read values in lines of text and map them into .NET CLR objects.
 One of the common tasks we as developers face is to read lines of text with values separated by some delimiter (comma, pipe, tab, etc.), or of fixed lengths, while doing some basic manipulation like checking if it matches some pattern or convert it to a some of the .NET CLR datatype. IllyumL2T is an utility that eases such task.
+
 There are two options to determine the length of mapped values: implicitly determined by a given delimiter or explicitly determined by a fixed length; that is, they can be delimiter-separated values or positional/fixed-width values.
 These two layout options can be applied per line or per file; that is, if you are parsing a given individual composite text line, then you can choose to parse it with one of the two available layouts. This layout choice is given by means of the actual fields splitter object passed to the constructor of a `LineParser` object: `DelimiterSeparatedValuesFieldsSplitter` (the default) or `PositionalValuesFieldsSplitter`.
 Likewise, if you are parsing an entire text file, then you can choose to parse it with one of the two available layouts. This layout choice is given by means of file parser object used: `DelimiterSeparatedValuesFileParser` or `PositionalValuesFileParser`.
