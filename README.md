@@ -7,6 +7,8 @@ There are two options to determine the length of mapped values: implicitly deter
 These two layout options can be applied per line or per file; that is, if you are parsing a given individual composite text line, then you can choose to parse it with one of the two available layouts. This layout choice is given by means of the actual fields splitter object passed to the constructor of a `LineParser` object: `DelimiterSeparatedValuesFieldsSplitter` (the default) or `PositionalValuesFieldsSplitter`.
 Likewise, if you are parsing an entire text file, then you can choose to parse it with one of the two available layouts. This layout choice is given by means of the file parser object actually used: `DelimiterSeparatedValuesFileParser` or `PositionalValuesFileParser`.
 
+Please note that for positional/fixed-width parsing to work, you must declare the length of each value by means of the `Length` property of the `IllyumL2T.Core.ParseBehaviorAttribute`.
+
 ###Installation
 IllyumL2T consists of one single DLL: IllyumL2T.Core.dll. Although it might be added to a Visual Studio project like any other assembly, we recommend to use NuGet and the associated well-known procedure.
 
