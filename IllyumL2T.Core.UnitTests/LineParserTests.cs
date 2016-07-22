@@ -76,6 +76,128 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
     }
 
     [TestMethod]
+    public void LineParsePositionalTest()
+    {
+      // Arrange
+      string address = "jane@domain.com";
+      var line = $" 1234   3.1416{address,-50}25/12/2007";
+
+      // Act
+      var lineParser = new LineParser<SimpleOrder>(new PositionalValuesFieldsSplitter<SimpleOrder>());
+      var parseResult = lineParser.Parse(line);
+
+      // Assert
+      Assert.IsNull(parseResult.Errors);
+
+      var actual = parseResult.Instance;
+      Assert.IsNotNull(actual);
+      var expected = new SimpleOrder()
+      {
+        OrderId = 1234,
+        Freight = 3.1416m,
+        ShipAddress = address,
+        DeliveryDate = new DateTime(2007, 12, 25),
+      };
+
+      Assert.AreEqual<SimpleOrder>(expected, actual);
+    }
+
+    [TestMethod]
+    public void ShortLineParsePositionalTest()
+    {
+      // Arrange
+      string address = "jane@domain.com";
+      var line = $" 1234   3.1416{address,-30}";//input line length is less than declared total length.
+
+      // Act
+      var lineParser = new LineParser<SimpleOrder>(new PositionalValuesFieldsSplitter<SimpleOrder>());
+      var parseResult = lineParser.Parse(line);
+
+      // Assert
+      Assert.IsNull(parseResult.Errors);
+
+      var actual = parseResult.Instance;
+      Assert.IsNotNull(actual);
+      var expected = new SimpleOrder()
+      {
+        OrderId = 1234,
+        Freight = 3.1416m,
+        ShipAddress = address,
+        DeliveryDate = DateTime.MinValue,
+      };
+
+      Assert.AreEqual<SimpleOrder>(expected, actual);
+    }
+
+    [TestMethod]
+    public void EmptyLineParsePositionalTest()
+    {
+      // Arrange
+      var line = "";
+
+      // Act
+      var lineParser = new LineParser<SimpleOrder>(new PositionalValuesFieldsSplitter<SimpleOrder>());
+      var parseResult = lineParser.Parse(line);
+
+      // Assert
+      Assert.IsNull(parseResult.Errors);
+
+      var actual = parseResult.Instance;
+      Assert.IsNotNull(actual);
+      var expected = new SimpleOrder()
+      {
+        OrderId = 0,
+        Freight = 0m,
+        ShipAddress = null,
+        DeliveryDate = DateTime.MinValue,
+      };
+
+      Assert.AreEqual<SimpleOrder>(expected, actual);
+    }
+
+    [TestMethod, ExpectedException(typeof(ArgumentNullException))]
+    public void NullLineParsePositionalTest()
+    {
+      // Arrange
+      string line = null;
+
+      // Act
+      var lineParser = new LineParser<SimpleOrder>(new PositionalValuesFieldsSplitter<SimpleOrder>());
+      var parseResult = lineParser.Parse(line);
+
+      // Assert
+      Assert.Fail("Null input line must throw an exception.");
+    }
+
+    [TestMethod, ExpectedException(typeof(ArgumentOutOfRangeException))]
+    public void NegativeLengthFieldParsePositionalTest()
+    {
+      // Arrange
+      var line = $" 1234ABCDE";//input line length is invalid field length.
+
+      // Act
+      var lineParser = new LineParser<BadRecord>(new PositionalValuesFieldsSplitter<BadRecord>());
+      var parseResult = lineParser.Parse(line);
+
+      // Assert
+      Assert.Fail("Positional field with non-positive length must throw an exception.");
+    }
+
+    [TestMethod, ExpectedException(typeof(ArgumentOutOfRangeException))]
+    public void ZeroLengthFieldParsePositionalTest()
+    {
+      // Arrange
+      var line = $" 1234ABCDE";//input line length is invalid field length.
+
+      // Act
+      var lineParser = new LineParser<BadRecord2>(new PositionalValuesFieldsSplitter<BadRecord2>());
+      var parseResult = lineParser.Parse(line);
+
+      // Assert
+      Assert.Fail("Positional field with non-positive length must throw an exception.");
+    }
+
+    [TestMethod]
     public void LineParseWithErrorsTest()
     {
       // Arrange
