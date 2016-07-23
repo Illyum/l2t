@@ -217,6 +217,172 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
         Assert.IsTrue(orders.SequenceEqual(parseResults.Select(parseResult => parseResult.Instance)));
       }
     }
+    [TestMethod]
+    public void MemoryStreamAsPositionalBinarySocketsTest()
+    {
+      IEnumerable<ParseResult<SimpleOrder>> parseResults = null;
+
+      var frames = new List<byte[]>
+      {
+        new byte[] { 0x20, 0x20, 0x20, 0x20, 0x31 },
+        new byte[] { 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x32 },
+        new byte[] { 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x41 },
+        new byte[] { 0x33, 0x31, 0x2F, 0x31, 0x32, 0x2F, 0x32, 0x30, 0x31, 0x35 },
+        new byte[] { 0x20, 0x20, 0x20, 0x20, 0x33 },
+        new byte[] { 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x34 },
+        new byte[] { 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x42 },
+        new byte[] { 0x30, 0x33, 0x2F, 0x30, 0x32, 0x2F, 0x32, 0x30, 0x31, 0x36 }
+      };
+
+      IEnumerable<SimpleOrder> orders = new List<SimpleOrder>
+      {
+        new SimpleOrder { OrderId = 1, Freight = 2M, ShipAddress = "A", DeliveryDate = new DateTime(2015, 12, 31) },
+        new SimpleOrder { OrderId = 3, Freight = 4M, ShipAddress = "B", DeliveryDate = new DateTime(2016, 2, 3) }
+      };
+
+      var sync = new System.Threading.ManualResetEvent(false);
+      int port = 13001;
+      System.Net.Sockets.TcpListener server = null;
+      try
+      {
+        var listen = new Action(() =>
+        {
+          server = System.Net.Sockets.TcpListener.Create(port);
+          server.Start();
+          using (var serverside_client = server.AcceptTcpClient())
+          using (var serverside_stream = serverside_client.GetStream())
+          {
+            foreach (var frame in frames)
+            {
+              serverside_stream.Write(frame, 0, frame.Length);
+              System.Threading.Thread.Sleep(500);
+            }
+          }
+          sync.WaitOne();
+          server.Stop();
+        });
+        var listen_task = System.Threading.Tasks.Task.Run(listen);
+
+        var received = new System.Text.StringBuilder();
+        using (var client = new System.Net.Sockets.TcpClient())
+        {
+          client.Connect(Environment.MachineName, port);
+System.Diagnostics.Trace.WriteLine($"client.Connected:{client.Connected}");
+//          Assert.IsTrue(client.Connected);
+          using (var stream = client.GetStream())
+          using (var reader = new System.IO.BinaryReader(stream))
+          {
+            const int buffer_size = 0x400;
+            byte[] buffer = new byte[buffer_size];
+            do
+            {
+              int read = reader.Read(buffer, 0, buffer_size);
+              System.Diagnostics.Trace.WriteLine($"read:{read}");
+              if (read == 0)
+              {
+                break;
+              }
+              byte[] packet = new byte[read];
+              Array.Copy(buffer, packet, read);
+              received.Append(System.Text.Encoding.UTF8.GetString(packet));
+            } while (true);
+
+            //var parser = new PositionalValuesFileParser<SimpleOrder>();
+
+            // Act
+            //parseResults = parser.Read(reader);
+          }
+        }
+
+        sync.Set();
+        listen_task.Wait(5000);
+
+        // Assert
+        Assert.IsTrue(received.ToString().Length > 0);
+        //Assert.IsTrue(orders.SequenceEqual(parseResults.Select(parseResult => parseResult.Instance)));
+      }
+      finally
+      {
+        server?.Stop();
+        server = null;
+      }
+      Assert.IsNull(server);
+    }
+
+    [TestMethod]
+    public void test_executable_model_with_sockets()
+    {
+      var frames = new List<byte[]>
+      {
+        new byte[] { 0x20, 0x20, 0x20, 0x20, 0x31 },
+        new byte[] { 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x32 },
+        new byte[] { 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x41 },
+        new byte[] { 0x33, 0x31, 0x2F, 0x31, 0x32, 0x2F, 0x32, 0x30, 0x31, 0x35 },
+        new byte[] { 0x20, 0x20, 0x20, 0x20, 0x33 },
+        new byte[] { 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x34 },
+        new byte[] { 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x42 },
+        new byte[] { 0x30, 0x33, 0x2F, 0x30, 0x32, 0x2F, 0x32, 0x30, 0x31, 0x36 }
+      };
+
+      var sync = new System.Threading.ManualResetEvent(false);
+      int port = 13002;
+      System.Net.Sockets.TcpListener server = null;
+      try
+      {
+        var listen = new Action(() =>
+        {
+          server = System.Net.Sockets.TcpListener.Create(port);
+          server.Start();
+          using (var serverside_client = server.AcceptTcpClient())
+          using (var serverside_stream = serverside_client.GetStream())
+          {
+            foreach (var frame in frames)
+            {
+              serverside_stream.Write(frame, 0, frame.Length);
+              System.Threading.Thread.Sleep(500);
+            }
+          }
+          sync.WaitOne();
+          server.Stop();
+        });
+        var listen_task = System.Threading.Tasks.Task.Run(listen);
+
+        var received = new System.Text.StringBuilder();
+        using (var client = new System.Net.Sockets.TcpClient())
+        {
+          client.Connect(Environment.MachineName, port);
+          Assert.IsTrue(client.Connected);
+          using (var stream = client.GetStream())
+          using (var reader = new System.IO.BinaryReader(stream))
+          {
+            const int buffer_size = 0x400;
+            byte[] buffer = new byte[buffer_size];
+            do
+            {
+              int read = reader.Read(buffer, 0, buffer_size);
+              System.Diagnostics.Trace.WriteLine($"read:{read}");
+              if (read == 0)
+              {
+                break;
+              }
+              byte[] packet = new byte[read];
+              Array.Copy(buffer, packet, read);
+              received.Append(System.Text.Encoding.UTF8.GetString(packet));
+            } while (true);
+          }
+        }
+
+        sync.Set();
+        listen_task.Wait(5000);
+        Assert.IsTrue(received.ToString().Length > 0);
+      }
+      finally
+      {
+        server?.Stop();
+        server = null;
+      }
+      Assert.IsNull(server);
+    }
 
     /// <summary>
     /// Delimited packets & Delimited messages && Delimited values; that is, packets, messages and values have separators.
@@ -263,12 +429,12 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
         0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x32,
         0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x41,
         0x33, 0x31, 0x2F, 0x31, 0x32, 0x2F, 0x32, 0x30, 0x31, 0x35,
-        0x0D, 0x0A,
+        0x0A,
         0x20, 0x20, 0x20, 0x20, 0x33,
         0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x34,
         0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x42,
         0x30, 0x33, 0x2F, 0x30, 0x32, 0x2F, 0x32, 0x30, 0x31, 0x36,
-        0x0D, 0x0A
+        0x0A
       });
 
       IEnumerable<SimpleOrder> orders = new List<SimpleOrder>
@@ -282,7 +448,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
         var parser = new PositionalValuesFileParser<SimpleOrder>();
 
         // Act
-        var parseResults = parser.Read(reader);
+        var parseResults = parser.Read(reader, group_separator: null, record_separator: 0x0A, unit_separator: null);
 
         // Assert
         Assert.IsTrue(orders.SequenceEqual(parseResults.Select(parseResult => parseResult.Instance)));
