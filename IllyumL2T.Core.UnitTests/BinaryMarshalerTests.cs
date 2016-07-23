@@ -16,6 +16,32 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
       // Arrange
       var frame = new System.IO.MemoryStream(new byte[] { 0x01, 0x09, 0x35, 0x20, 0x20, 0x32, 0x36, 0x41, 0x42, 0x43 }); //For now, each value represented as a string. 
 
+      /*
+      System.IO.Stream
+        Microsoft.JScript.COMCharStream
+        System.Data.OracleClient.OracleBFile
+        System.Data.OracleClient.OracleLob
+        System.Data.SqlTypes.SqlFileStream
+        System.IO.BufferedStream
+        System.IO.Compression.DeflateStream
+        System.IO.Compression.GZipStream
+        System.IO.FileStream
+        System.IO.MemoryStream
+        System.IO.Pipes.PipeStream
+        System.IO.UnmanagedMemoryStream
+        System.Net.Security.AuthenticatedStream
+        System.Net.Sockets.NetworkStream
+        System.Printing.PrintQueueStream
+        System.Security.Cryptography.CryptoStream
+
+      System.IO.Stream stream1 = new System.IO.MemoryStream();
+      System.IO.Stream stream2 = new System.Net.Sockets.NetworkStream(socket: null);
+
+      System.IO.TextReader x1 = new System.IO.StreamReader(stream1);
+      System.IO.TextReader x2 = new System.IO.StreamReader(stream2);
+      System.IO.BinaryReader x3 = new System.IO.BinaryReader(stream2);
+      */
+
       // Act
       List<Record> parsed_objects;
       using (var reader = new System.IO.BinaryReader(frame))
