@@ -111,6 +111,8 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
       }
     }
 
+    //TODO:Temporally here. Once evaluated, then they could move at a proper location.
+
     [TestMethod]
     public void MemoryStreamAsDelimitedTextTest()
     {
@@ -176,8 +178,8 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
     }
 
     /// <summary>
-    /// Positional packet & Positional message; that is, no separators.
-    /// Simplest case where byte[] is interpreted as string.
+    /// Positional packets & Positional messages & Positional values; that is, no separators.
+    /// Simplest case where byte[] (message) is interpreted as a text line.
     /// </summary>
     [TestMethod]
     public void MemoryStreamAsPositionalBinaryTest()
@@ -213,6 +215,9 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
       }
     }
 
+    /// <summary>
+    /// Delimited packets & Delimited messages && Delimited values; that is, packets, messages and values have separators.
+    /// </summary>
     [TestMethod, Ignore]
     public void MemoryStreamAsDelimitedBinaryTest()
     {

@@ -151,7 +151,7 @@ namespace IllyumL2T.Core.Parse
     protected abstract FieldsSplitterBase<T> CreateValuesFieldsSplitter(char? delimiter = null);
   }
 
-  //Temporally here. Once evaluated, then they could move at a proper location.
+  //TODO:Temporally here. Once evaluated, then they could move at a proper location.
   #region bytes as binary
   public interface IPacketReader
   {
