@@ -127,7 +127,6 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
         new Order { OrderId = 3, Freight = 4M, ShipAddress = "B", DeliveryDate = new DateTime(2016, 2, 3) }
       };
 
-      // Act
       using (var reader = new System.IO.StreamReader(text_lines))
       {
         var parser = new DelimiterSeparatedValuesFileParser<Order>();
@@ -164,13 +163,50 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
         new SimpleOrder { OrderId = 3, Freight = 4M, ShipAddress = "B", DeliveryDate = new DateTime(2016, 2, 3) }
       };
 
-      // Act
       using (var reader = new System.IO.StreamReader(text_lines))
       {
         var parser = new PositionalValuesFileParser<SimpleOrder>();
 
         // Act
         var parseResults = parser.Read(reader, includeHeaders: false);
+
+        // Assert
+        Assert.IsTrue(orders.SequenceEqual(parseResults.Select(parseResult => parseResult.Instance)));
+      }
+    }
+
+    /// <summary>
+    /// Positional packet & Positional message; that is, no separators.
+    /// Simplest case where byte[] is interpreted as string.
+    /// </summary>
+    [TestMethod]
+    public void MemoryStreamAsPositionalBinaryTest()
+    {
+      // Arrange
+      var frame = new System.IO.MemoryStream(new byte[]
+      {
+        0x20, 0x20, 0x20, 0x20, 0x31,
+        0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x32,
+        0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x41,
+        0x33, 0x31, 0x2F, 0x31, 0x32, 0x2F, 0x32, 0x30, 0x31, 0x35,
+        0x20, 0x20, 0x20, 0x20, 0x33,
+        0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x34,
+        0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x42,
+        0x30, 0x33, 0x2F, 0x30, 0x32, 0x2F, 0x32, 0x30, 0x31, 0x36,
+      });
+
+      IEnumerable<SimpleOrder> orders = new List<SimpleOrder>
+      {
+        new SimpleOrder { OrderId = 1, Freight = 2M, ShipAddress = "A", DeliveryDate = new DateTime(2015, 12, 31) },
+        new SimpleOrder { OrderId = 3, Freight = 4M, ShipAddress = "B", DeliveryDate = new DateTime(2016, 2, 3) }
+      };
+
+      using (var reader = new System.IO.BinaryReader(frame))
+      {
+        var parser = new PositionalValuesFileParser<SimpleOrder>();
+
+        // Act
+        var parseResults = parser.Read(reader);
 
         // Assert
         Assert.IsTrue(orders.SequenceEqual(parseResults.Select(parseResult => parseResult.Instance)));
@@ -194,7 +230,6 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
         0x1D
       });
 
-      // Act
       using (var reader = new System.IO.BinaryReader(frame))
       {
         var parser = new DelimiterSeparatedValuesFileParser<Order>();
