@@ -110,5 +110,81 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
         Assert.AreEqual<int>(expectedErrorsInFields, actualFieldsWithError);
       }
     }
+
+    [TestMethod]
+    public void MemoryStreamAsTextTest()
+    {
+      // Arrange
+      var text_lines = new System.IO.MemoryStream(new byte[]
+      {
+        0x31, 0x09, 0x32, 0x09, 0x41, 0x09, 0x33, 0x31, 0x2F, 0x31, 0x32, 0x2F, 0x32, 0x30, 0x31, 0x35, 0x0D, 0x0A,
+        0x33, 0x09, 0x34, 0x09, 0x42, 0x09, 0x30, 0x33, 0x2F, 0x30, 0x32, 0x2F, 0x32, 0x30, 0x31, 0x36, 0x0D, 0x0A
+      });
+
+      IEnumerable<Order> orders = new List<Order>
+      {
+        new Order { OrderId = 1, Freight = 2M, ShipAddress = "A", DeliveryDate = new DateTime(2015, 12, 31) },
+        new Order { OrderId = 3, Freight = 4M, ShipAddress = "B", DeliveryDate = new DateTime(2016, 2, 3) }
+      };
+
+      // Act
+      using (var reader = new System.IO.StreamReader(text_lines))
+      {
+        var parser = new DelimiterSeparatedValuesFileParser<Order>();
+
+        // Act
+        var parseResults = parser.Read(reader, delimiter: '\t', includeHeaders: false);
+
+        // Assert
+        Assert.IsTrue(orders.SequenceEqual(parseResults.Select(parseResult => parseResult.Instance)));
+      }
+    }
+
+    [TestMethod, Ignore]
+    public void MemoryStreamAsBinaryTest()
+    {
+      // Arrange
+      IEnumerable<Order> orders = new List<Order>
+      {
+        new Order { OrderId = 1, Freight = 2M, ShipAddress = "A", DeliveryDate = new DateTime(2015, 12, 31) },
+        new Order { OrderId = 3, Freight = 4M, ShipAddress = "B", DeliveryDate = new DateTime(2016, 2, 3) }
+      };
+
+      var frame = new System.IO.MemoryStream(new byte[]
+      {
+        0x31, 0x09, 0x32, 0x09, 0x41, 0x09, 0x33, 0x31, 0x2F, 0x31, 0x32, 0x2F, 0x32, 0x30, 0x31, 0x35, 0x1E,
+        0x33, 0x09, 0x34, 0x09, 0x42, 0x09, 0x30, 0x33, 0x2F, 0x30, 0x32, 0x2F, 0x32, 0x30, 0x31, 0x36, 0x1E,
+        0x1D
+      });
+
+      // Act
+      using (var reader = new System.IO.BinaryReader(frame))
+      {
+        var parser = new DelimiterSeparatedValuesFileParser<Order>();
+
+        // Act
+        var parseResults = parser.Read(reader, group_separator: 0x1D, record_separator: 0x1E, unit_separator: 0x09);
+
+        // Assert
+        Assert.IsTrue(orders.SequenceEqual(parseResults.Select(parseResult => parseResult.Instance)));
+      }
+    }
+
+    [TestMethod]
+    public void Bytes_vs_Chars_DifferenceAwareness_SampleCase1()
+    {
+      // Arrange
+      string lastname = "López";
+      System.Text.Encoding latin1 = System.Text.Encoding.GetEncoding("ISO-8859-1");
+      System.Text.Encoding utf8 = System.Text.Encoding.UTF8;
+
+      // Act
+      var latin1_bytes = latin1.GetBytes(lastname);
+      var utf8_bytes = utf8.GetBytes(lastname);
+
+      // Assert
+      Assert.AreEqual<int>(5, latin1_bytes.Length);
+      Assert.AreEqual<int>(6, utf8_bytes.Length);
+    }
   }
 }
