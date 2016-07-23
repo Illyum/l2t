@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.IO;
 using System.Collections.Generic;
 
@@ -21,14 +22,19 @@ namespace IllyumL2T.Core.Parse
       return ReadBinaryAsTemplateMethod(reader, group_separator, record_separator, unit_separator);
     }
 
-    protected IEnumerable<ParseResult<T>> ReadBinaryAsTemplateMethod(BinaryReader reader, byte group_separator, byte record_separator, byte unit_separator)
+    public IEnumerable<ParseResult<T>> Read(BinaryReader reader, byte group_separator, byte record_separator)
+    {
+      return ReadBinaryAsTemplateMethod(reader, group_separator, record_separator);
+    }
+
+    protected IEnumerable<ParseResult<T>> ReadBinaryAsTemplateMethod(BinaryReader reader, byte group_separator, byte record_separator, byte? unit_separator = null)
     {
       if (reader == null)
       {
         throw new ArgumentNullException($"{nameof(BinaryReader)} reader");
       }
 
-      yield break; //on construction...
+      return ParseBytesAsBinary(reader, group_separator, record_separator, unit_separator);
 
       //FieldsSplitterBase<T> fieldsSplitter = CreateValuesFieldsSplitter((char)unit_separator);
       //var lineParser = new LineParser<T>(fieldsSplitter);
@@ -46,6 +52,12 @@ namespace IllyumL2T.Core.Parse
       //    yield break;
       //  }
       //}
+    }
+
+    private IEnumerable<ParseResult<T>> ParseBytesAsBinary(BinaryReader reader, byte group_separator, byte record_separator, byte? unit_separator)
+    {
+      yield break; //To be designed
+
     }
 
     /// <summary>
@@ -111,6 +123,11 @@ namespace IllyumL2T.Core.Parse
       }
     }
 
+    /// <summary>
+    /// When overridden in a derived class, gets the proper policy for field splitting.
+    /// </summary>
+    /// <param name="delimiter">Optional. Delimiter for delimiter-separated values.</param>
+    /// <returns>Class for field splitting policy.</returns>
     public abstract FieldsSplitterBase<T> CreateValuesFieldsSplitter(char? delimiter = null);
   }
 }
