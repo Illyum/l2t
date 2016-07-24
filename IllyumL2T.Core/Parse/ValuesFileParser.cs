@@ -21,12 +21,14 @@ namespace IllyumL2T.Core.Parse
 
     /// <summary>
     /// The case for multi-byte separators is not supported yet.
-    /// A reference http://www.asciitable.com
+    /// References:
+    /// http://unicode-table.com
+    /// http://www.asciitable.com
     /// </summary>
-    /// <param name="reader"></param>
-    /// <param name="group_separator">Optional.</param>
-    /// <param name="record_separator">Optional.</param>
-    /// <param name="unit_separator">Optional.</param>
+    /// <param name="reader">Reader which reads a System.IO.Stream as binary.</param>
+    /// <param name="group_separator">Optional. Separator o delimiter for a group records.</param>
+    /// <param name="record_separator">Optional. Separator o delimiter for a group units.</param>
+    /// <param name="unit_separator">Optional. For the case of delimiter-separated simple values.</param>
     /// <returns></returns>
     public IEnumerable<ParseResult<T>> Read(BinaryReader reader, byte? group_separator = null, byte? record_separator = null, byte? unit_separator = null)
     {
@@ -73,7 +75,6 @@ namespace IllyumL2T.Core.Parse
     }
 
     /// <summary>
-    /// Not yet used.
     /// It would cover four combinations:
     /// Packet layout : fixed-length or delimited
     /// Message layout: fixed-length or delimited
