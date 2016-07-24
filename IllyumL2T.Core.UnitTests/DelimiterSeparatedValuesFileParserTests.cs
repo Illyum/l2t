@@ -352,8 +352,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
         var parseResults = parser.Read(reader, group_separator: 0x1D, record_separator: 0x1E, unit_separator: 0x09);
 
         // Assert
-        Assert.AreEqual<int>(4, parseResults.Count());
-        //Assert.IsTrue(orders.SequenceEqual(parseResults.Select(parseResult => parseResult.Instance)));
+        Assert.IsTrue(orders.SequenceEqual(parseResults.Select(parseResult => parseResult.Instance)));
       }
     }
 
@@ -390,6 +389,47 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
 
         // Act
         var parseResults = parser.Read(reader, group_separator: null, record_separator: 0x0A, unit_separator: null);
+
+        // Assert
+        Assert.IsTrue(orders.SequenceEqual(parseResults.Select(parseResult => parseResult.Instance)));
+      }
+    }
+
+    /// <summary>
+    /// Delimited packets (implicitly) & Delimited messages & Positional values; that is, packets, messages have separators and values are positional.
+    /// </summary>
+    [TestMethod]
+    public void MemoryStreamAsMixedPositionalDelimitedBinaryTest2()
+    {
+      // Arrange
+      var frame = new System.IO.MemoryStream(new byte[]
+      {
+        0x02,
+        0x20, 0x20, 0x20, 0x20, 0x31,
+        0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x32,
+        0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x41,
+        0x33, 0x31, 0x2F, 0x31, 0x32, 0x2F, 0x32, 0x30, 0x31, 0x35,
+        0x03,
+        0x02,
+        0x20, 0x20, 0x20, 0x20, 0x33,
+        0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x34,
+        0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x42,
+        0x30, 0x33, 0x2F, 0x30, 0x32, 0x2F, 0x32, 0x30, 0x31, 0x36,
+        0x03
+      });
+
+      IEnumerable<SimpleOrder> orders = new List<SimpleOrder>
+      {
+        new SimpleOrder { OrderId = 1, Freight = 2M, ShipAddress = "A", DeliveryDate = new DateTime(2015, 12, 31) },
+        new SimpleOrder { OrderId = 3, Freight = 4M, ShipAddress = "B", DeliveryDate = new DateTime(2016, 2, 3) }
+      };
+
+      using (var reader = new System.IO.BinaryReader(frame))
+      {
+        var parser = new PositionalValuesFileParser<SimpleOrder>();
+
+        // Act
+        var parseResults = parser.Read(reader, group_separator: 0x02, record_separator: 0x03, unit_separator: null);
 
         // Assert
         Assert.IsTrue(orders.SequenceEqual(parseResults.Select(parseResult => parseResult.Instance)));
@@ -539,16 +579,13 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
       byte[] bytes2 = buffer.ReadBytesUpTo(0x09, 0x0D);
       byte[] bytes3 = buffer.ReadBytesUpTo(0x09, 0x0D);
       byte[] bytes4 = buffer.ReadBytesUpTo(0x09, 0x0D);
-      byte[] bytes5 = buffer.ReadBytesUpTo(0x09, 0x0D);
 
       // Assert
-      Assert.IsNull(bytes1);
-      Assert.IsNotNull(bytes2);
-      Assert.AreEqual<int>(1, bytes2.Length);
-      Assert.AreEqual<byte>(0x01, bytes2[0]);
+      Assert.IsNotNull(bytes1);
+      Assert.AreEqual<int>(1, bytes1.Length);
+      Assert.AreEqual<byte>(0x01, bytes1[0]);
       Assert.IsNull(bytes3);
       Assert.IsNull(bytes4);
-      Assert.IsNull(bytes5);
     }
 
     [TestMethod, TestCategory("CircularBuffer")]
@@ -574,6 +611,32 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
       Assert.AreEqual<int>(1, bytes2.Length);
       Assert.AreEqual<byte>(0x02, bytes2[0]);
 
+      Assert.IsNull(bytes4);
+    }
+
+    [TestMethod, TestCategory("CircularBuffer")]
+    public void ReadBytesUpTo_basic9()
+    {
+      // Arrange
+      var buffer = new CircularBuffer();
+      buffer.Add(new byte[] { 0x02, 0x20, 0x03, 0x02, 0x21, 0x03 });
+
+      // Act
+      byte[] bytes1 = buffer.ReadBytesUpTo(0x02, 0x03);
+      byte[] bytes2 = buffer.ReadBytesUpTo(0x02, 0x03);
+      byte[] bytes3 = buffer.ReadBytesUpTo(0x02, 0x03);
+      byte[] bytes4 = buffer.ReadBytesUpTo(0x02, 0x03);
+
+      // Assert
+      Assert.IsNotNull(bytes1);
+      Assert.AreEqual<int>(1, bytes1.Length);
+      Assert.AreEqual<byte>(0x20, bytes1[0]);
+
+      Assert.IsNotNull(bytes2);
+      Assert.AreEqual<int>(1, bytes2.Length);
+      Assert.AreEqual<byte>(0x21, bytes2[0]);
+
+      Assert.IsNull(bytes3);
       Assert.IsNull(bytes4);
     }
     #endregion
