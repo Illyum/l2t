@@ -175,7 +175,7 @@ namespace IllyumL2T.Core.Parse
     IEnumerable<byte[]> ReadNextFixedLengthMessageFrom(byte[] packet);
     IEnumerable<byte[]> ReadNextDelimiterSeparatedValuesMessageFrom(byte[] packet);
   }
-  public abstract class Marshaller<T> where T : class, new()
+  internal abstract class Marshaller<T> where T : class, new()
   {
     private ILineParser<T> lineParser;
 
@@ -269,7 +269,7 @@ namespace IllyumL2T.Core.Parse
     }
   }
 
-  public class FixedLengthMarshaller<T> : Marshaller<T> where T : class, new()
+  internal class FixedLengthMarshaller<T> : Marshaller<T> where T : class, new()
   {
     private int message_size;
 
@@ -284,15 +284,10 @@ namespace IllyumL2T.Core.Parse
     private int CalculateTotalDeclaredSize(Type type) => type.GetProperties().Select(p => (IllyumL2T.Core.ParseBehaviorAttribute)p.GetCustomAttributes(typeof(IllyumL2T.Core.ParseBehaviorAttribute), true).First()).Where(attr => attr.Length > 0).Sum(a => a.Length);
   }
 
-  public class SeparatorMarshaller<T> : Marshaller<T> where T : class, new()
+  internal class SeparatorMarshaller<T> : Marshaller<T> where T : class, new()
   {
-    //private byte group_separator;
-    //private byte record_separator;
-
     public SeparatorMarshaller(ILineParser<T> lineParser, byte? group_separator, byte? record_separator) : base(lineParser)
     {
-      //this.group_separator = group_separator;
-      //this.record_separator = record_separator;
       messageReader = new MessageReader(group_separator, record_separator);
     }
 

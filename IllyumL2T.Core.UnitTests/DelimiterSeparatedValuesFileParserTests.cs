@@ -5,9 +5,6 @@ using System.IO;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using Moq;
-
-using IllyumL2T.Core.FieldsSplit;
 using IllyumL2T.Core.Parse;
 
 namespace IllyumL2T.Core.FieldsSplit.UnitTests
@@ -292,7 +289,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
     }
 
     /// <summary>
-    /// Delimited packets & Delimited messages && Delimited values; that is, packets, messages and values have separators.
+    /// Delimited packets & Delimited messages & Delimited values; that is, packets, messages and values have separators.
     /// </summary>
     [TestMethod]
     public void MemoryStreamAsDelimitedBinaryTest()
@@ -379,7 +376,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
       Assert.AreEqual<int>(6, utf8_bytes.Length);
     }
 
-
+    #region CircularButter.ReadBytesUpTo tests
     [TestMethod, TestCategory("CircularBuffer")]
     public void ReadBytesUpTo_basic0()
     {
@@ -460,5 +457,38 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
       Assert.AreEqual<int>(1, bytes2.Length);
       Assert.AreEqual<byte>(0x02, bytes2[0]);
     }
+
+    [TestMethod, TestCategory("CircularBuffer")]
+    public void ReadBytesUpTo_basic5()
+    {
+      // Arrange
+      var buffer = new CircularBuffer();
+      buffer.Add(new byte[] { 0x0D });
+
+      // Act
+      byte[] bytes = buffer.ReadBytesUpTo(0x09, 0x0D);
+
+      // Assert
+      Assert.IsNull(bytes);
+    }
+
+    [TestMethod, TestCategory("CircularBuffer")]
+    public void ReadBytesUpTo_basic6()
+    {
+      // Arrange
+      var buffer = new CircularBuffer();
+      buffer.Add(new byte[] { 0x0D, 0x09, 0x0D });
+
+      // Act
+      byte[] bytes1 = buffer.ReadBytesUpTo(0x09, 0x0D);
+      byte[] bytes2 = buffer.ReadBytesUpTo(0x09, 0x0D);
+      byte[] bytes3 = buffer.ReadBytesUpTo(0x09, 0x0D);
+
+      // Assert
+      Assert.IsNull(bytes1);
+      Assert.IsNull(bytes2);
+      Assert.IsNull(bytes3);
+    }
+    #endregion
   }
 }
