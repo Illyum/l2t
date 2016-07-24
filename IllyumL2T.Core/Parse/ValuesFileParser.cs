@@ -276,7 +276,6 @@ namespace IllyumL2T.Core.Parse
       do
       {
         int read = source.Read(buffer, 0, buffer_size);
-System.Diagnostics.Trace.WriteLine($"read:{read}");
         if (read == 0)
         {
           yield break;
