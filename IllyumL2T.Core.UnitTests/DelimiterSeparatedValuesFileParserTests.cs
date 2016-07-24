@@ -220,8 +220,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
     [TestMethod]
     public void MemoryStreamAsPositionalBinarySocketsTest()
     {
-      IEnumerable<ParseResult<SimpleOrder>> parseResults = null;
-
+      // Arrange
       var frames = new List<byte[]>
       {
         new byte[] { 0x20, 0x20, 0x20, 0x20, 0x31 },
@@ -243,6 +242,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
       var sync = new System.Threading.ManualResetEvent(false);
       int port = 13001;
       System.Net.Sockets.TcpListener server = null;
+      IEnumerable<ParseResult<SimpleOrder>> parsed_orders = null;
       try
       {
         var listen = new Action(() =>
@@ -255,7 +255,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
             foreach (var frame in frames)
             {
               serverside_stream.Write(frame, 0, frame.Length);
-              System.Threading.Thread.Sleep(500);
+              System.Threading.Thread.Sleep(100);
             }
           }
           sync.WaitOne();
@@ -263,125 +263,32 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
         });
         var listen_task = System.Threading.Tasks.Task.Run(listen);
 
-        var received = new System.Text.StringBuilder();
         using (var client = new System.Net.Sockets.TcpClient())
         {
           client.Connect(Environment.MachineName, port);
-System.Diagnostics.Trace.WriteLine($"client.Connected:{client.Connected}");
-//          Assert.IsTrue(client.Connected);
           using (var stream = client.GetStream())
           using (var reader = new System.IO.BinaryReader(stream))
           {
-            const int buffer_size = 0x400;
-            byte[] buffer = new byte[buffer_size];
-            do
-            {
-              int read = reader.Read(buffer, 0, buffer_size);
-              System.Diagnostics.Trace.WriteLine($"read:{read}");
-              if (read == 0)
-              {
-                break;
-              }
-              byte[] packet = new byte[read];
-              Array.Copy(buffer, packet, read);
-              received.Append(System.Text.Encoding.UTF8.GetString(packet));
-            } while (true);
-
-            //var parser = new PositionalValuesFileParser<SimpleOrder>();
+            var parser = new PositionalValuesFileParser<SimpleOrder>();
 
             // Act
-            //parseResults = parser.Read(reader);
+            var parseResults = parser.Read(reader);
+            parsed_orders = parseResults.ToList();
           }
         }
 
         sync.Set();
-        listen_task.Wait(5000);
-
-        // Assert
-        Assert.IsTrue(received.ToString().Length > 0);
-        //Assert.IsTrue(orders.SequenceEqual(parseResults.Select(parseResult => parseResult.Instance)));
+        listen_task.Wait(500);
       }
       finally
       {
         server?.Stop();
         server = null;
+        sync.Dispose();
       }
-      Assert.IsNull(server);
-    }
 
-    [TestMethod]
-    public void test_executable_model_with_sockets()
-    {
-      var frames = new List<byte[]>
-      {
-        new byte[] { 0x20, 0x20, 0x20, 0x20, 0x31 },
-        new byte[] { 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x32 },
-        new byte[] { 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x41 },
-        new byte[] { 0x33, 0x31, 0x2F, 0x31, 0x32, 0x2F, 0x32, 0x30, 0x31, 0x35 },
-        new byte[] { 0x20, 0x20, 0x20, 0x20, 0x33 },
-        new byte[] { 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x34 },
-        new byte[] { 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x42 },
-        new byte[] { 0x30, 0x33, 0x2F, 0x30, 0x32, 0x2F, 0x32, 0x30, 0x31, 0x36 }
-      };
-
-      var sync = new System.Threading.ManualResetEvent(false);
-      int port = 13002;
-      System.Net.Sockets.TcpListener server = null;
-      try
-      {
-        var listen = new Action(() =>
-        {
-          server = System.Net.Sockets.TcpListener.Create(port);
-          server.Start();
-          using (var serverside_client = server.AcceptTcpClient())
-          using (var serverside_stream = serverside_client.GetStream())
-          {
-            foreach (var frame in frames)
-            {
-              serverside_stream.Write(frame, 0, frame.Length);
-              System.Threading.Thread.Sleep(500);
-            }
-          }
-          sync.WaitOne();
-          server.Stop();
-        });
-        var listen_task = System.Threading.Tasks.Task.Run(listen);
-
-        var received = new System.Text.StringBuilder();
-        using (var client = new System.Net.Sockets.TcpClient())
-        {
-          client.Connect(Environment.MachineName, port);
-          Assert.IsTrue(client.Connected);
-          using (var stream = client.GetStream())
-          using (var reader = new System.IO.BinaryReader(stream))
-          {
-            const int buffer_size = 0x400;
-            byte[] buffer = new byte[buffer_size];
-            do
-            {
-              int read = reader.Read(buffer, 0, buffer_size);
-              System.Diagnostics.Trace.WriteLine($"read:{read}");
-              if (read == 0)
-              {
-                break;
-              }
-              byte[] packet = new byte[read];
-              Array.Copy(buffer, packet, read);
-              received.Append(System.Text.Encoding.UTF8.GetString(packet));
-            } while (true);
-          }
-        }
-
-        sync.Set();
-        listen_task.Wait(5000);
-        Assert.IsTrue(received.ToString().Length > 0);
-      }
-      finally
-      {
-        server?.Stop();
-        server = null;
-      }
-      Assert.IsNull(server);
+      // Assert
+      Assert.IsTrue(orders.SequenceEqual(parsed_orders.Select(parseResult => parseResult.Instance)));
     }
 
     /// <summary>
