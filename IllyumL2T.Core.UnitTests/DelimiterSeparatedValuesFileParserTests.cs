@@ -322,6 +322,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
 
     /// <summary>
     /// Delimited packets & Delimited messages & Delimited values; that is, packets, messages and values have separators.
+    /// This time with two groups of records.
     /// </summary>
     [TestMethod]
     public void MemoryStreamAsDelimitedBinaryTest2()
@@ -397,6 +398,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
 
     /// <summary>
     /// Delimited packets (implicitly) & Delimited messages & Positional values; that is, packets, messages have separators and values are positional.
+    /// This time for U+0002 Start of Text(STX) and U+0003 End of Text(ETX) as separators case.
     /// </summary>
     [TestMethod]
     public void MemoryStreamAsMixedPositionalDelimitedBinaryTest2()
@@ -420,6 +422,51 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
 
       IEnumerable<SimpleOrder> orders = new List<SimpleOrder>
       {
+        new SimpleOrder { OrderId = 1, Freight = 2M, ShipAddress = "A", DeliveryDate = new DateTime(2015, 12, 31) },
+        new SimpleOrder { OrderId = 3, Freight = 4M, ShipAddress = "B", DeliveryDate = new DateTime(2016, 2, 3) }
+      };
+
+      using (var reader = new System.IO.BinaryReader(frame))
+      {
+        var parser = new PositionalValuesFileParser<SimpleOrder>();
+
+        // Act
+        var parseResults = parser.Read(reader, group_separator: 0x02, record_separator: 0x03, unit_separator: null);
+
+        // Assert
+        Assert.IsTrue(orders.SequenceEqual(parseResults.Select(parseResult => parseResult.Instance)));
+      }
+    }
+
+    /// <summary>
+    /// Delimited packets (implicitly) & Delimited messages & Positional values; that is, packets, messages have separators and values are positional.
+    /// This time with incomplete record at the start of the byte frame.
+    /// </summary>
+    [TestMethod]
+    public void MemoryStreamAsMixedPositionalDelimitedBinaryTest3()
+    {
+      // Arrange
+      var frame = new System.IO.MemoryStream(new byte[]
+      {
+        0x30, 0x33, 0x2F, 0x30, 0x32, 0x2F, 0x32, 0x30, 0x31, 0x36,
+        0x03,
+        0x02,
+        0x20, 0x20, 0x20, 0x20, 0x31,
+        0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x32,
+        0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x41,
+        0x33, 0x31, 0x2F, 0x31, 0x32, 0x2F, 0x32, 0x30, 0x31, 0x35,
+        0x03,
+        0x02,
+        0x20, 0x20, 0x20, 0x20, 0x33,
+        0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x34,
+        0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x42,
+        0x30, 0x33, 0x2F, 0x30, 0x32, 0x2F, 0x32, 0x30, 0x31, 0x36,
+        0x03
+      });
+
+      IEnumerable<SimpleOrder> orders = new List<SimpleOrder>
+      {
+        null,
         new SimpleOrder { OrderId = 1, Freight = 2M, ShipAddress = "A", DeliveryDate = new DateTime(2015, 12, 31) },
         new SimpleOrder { OrderId = 3, Freight = 4M, ShipAddress = "B", DeliveryDate = new DateTime(2016, 2, 3) }
       };

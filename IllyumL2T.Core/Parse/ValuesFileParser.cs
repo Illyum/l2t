@@ -42,12 +42,12 @@ namespace IllyumL2T.Core.Parse
         throw new ArgumentNullException($"{nameof(BinaryReader)} reader");
       }
 
-      char? separator = null;
+      char? simple_value_separator = null;
       if (unit_separator.HasValue)
       {
-        separator = (char)unit_separator;
+        simple_value_separator = (char)unit_separator;
       }
-      FieldsSplitterBase<T> fieldsSplitter = CreateValuesFieldsSplitter(delimiter: separator);
+      FieldsSplitterBase<T> fieldsSplitter = CreateValuesFieldsSplitter(delimiter: simple_value_separator);
       var lineParser = new LineParser<T>(fieldsSplitter);
       if (group_separator.HasValue || record_separator.HasValue)
       {
