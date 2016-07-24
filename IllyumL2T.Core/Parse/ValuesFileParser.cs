@@ -497,13 +497,12 @@ namespace IllyumL2T.Core.Parse
       byte[] current_bytes = GetBytes(CurrentSize);
       if (current_bytes != null && current_bytes.Any(b => separators.Any(s => s == b)))
       {
-//System.Diagnostics.Trace.WriteLine(current_bytes.Aggregate(new System.Text.StringBuilder(), (whole, next) => whole.AppendFormat("{0}\n", next)).ToString());
         var fragment = current_bytes.TakeWhile(b => !separators.Any(s => s == b));
         uint result_count = (uint)fragment.Count();
         result = ReadBytes(result_count);
-        var skip = ReadBytes(1);
-
-        //uint skip_count = (uint)current_bytes.Count(b => !separators.Any(s => s == b));
+        current_bytes = GetBytes(CurrentSize);
+        var separators_fragment = current_bytes.TakeWhile(b => separators.Any(s => s == b));
+        var separators_skipped = ReadBytes((uint)separators_fragment.Count());
       }
       return result;
     }

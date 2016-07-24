@@ -321,6 +321,43 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
     }
 
     /// <summary>
+    /// Delimited packets & Delimited messages & Delimited values; that is, packets, messages and values have separators.
+    /// </summary>
+    [TestMethod]
+    public void MemoryStreamAsDelimitedBinaryTest2()
+    {
+      // Arrange
+      IEnumerable<Order> orders = new List<Order>
+      {
+        new Order { OrderId = 1, Freight = 2M, ShipAddress = "A", DeliveryDate = new DateTime(2015, 12, 31) },
+        new Order { OrderId = 3, Freight = 4M, ShipAddress = "B", DeliveryDate = new DateTime(2016, 2, 3) },
+        new Order { OrderId = 3, Freight = 4M, ShipAddress = "B", DeliveryDate = new DateTime(2016, 2, 3) },
+        new Order { OrderId = 1, Freight = 2M, ShipAddress = "A", DeliveryDate = new DateTime(2015, 12, 31) }
+      };
+
+      var frame = new System.IO.MemoryStream(new byte[]
+      {
+        0x31, 0x09, 0x32, 0x09, 0x41, 0x09, 0x33, 0x31, 0x2F, 0x31, 0x32, 0x2F, 0x32, 0x30, 0x31, 0x35, 0x1E,
+        0x33, 0x09, 0x34, 0x09, 0x42, 0x09, 0x30, 0x33, 0x2F, 0x30, 0x32, 0x2F, 0x32, 0x30, 0x31, 0x36, 0x1E,
+        0x1D,
+        0x33, 0x09, 0x34, 0x09, 0x42, 0x09, 0x30, 0x33, 0x2F, 0x30, 0x32, 0x2F, 0x32, 0x30, 0x31, 0x36, 0x1E,
+        0x31, 0x09, 0x32, 0x09, 0x41, 0x09, 0x33, 0x31, 0x2F, 0x31, 0x32, 0x2F, 0x32, 0x30, 0x31, 0x35, 0x1E
+      });
+
+      using (var reader = new System.IO.BinaryReader(frame))
+      {
+        var parser = new DelimiterSeparatedValuesFileParser<Order>();
+
+        // Act
+        var parseResults = parser.Read(reader, group_separator: 0x1D, record_separator: 0x1E, unit_separator: 0x09);
+
+        // Assert
+        Assert.AreEqual<int>(4, parseResults.Count());
+        //Assert.IsTrue(orders.SequenceEqual(parseResults.Select(parseResult => parseResult.Instance)));
+      }
+    }
+
+    /// <summary>
     /// Delimited packets (implicitly) & Delimited messages & Positional values; that is, packets, messages have separators and values are positional.
     /// </summary>
     [TestMethod]
@@ -488,6 +525,56 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
       Assert.IsNull(bytes1);
       Assert.IsNull(bytes2);
       Assert.IsNull(bytes3);
+    }
+
+    [TestMethod, TestCategory("CircularBuffer")]
+    public void ReadBytesUpTo_basic7()
+    {
+      // Arrange
+      var buffer = new CircularBuffer();
+      buffer.Add(new byte[] { 0x0D, 0x01, 0x09, 0x0D, 0x02 });
+
+      // Act
+      byte[] bytes1 = buffer.ReadBytesUpTo(0x09, 0x0D);
+      byte[] bytes2 = buffer.ReadBytesUpTo(0x09, 0x0D);
+      byte[] bytes3 = buffer.ReadBytesUpTo(0x09, 0x0D);
+      byte[] bytes4 = buffer.ReadBytesUpTo(0x09, 0x0D);
+      byte[] bytes5 = buffer.ReadBytesUpTo(0x09, 0x0D);
+
+      // Assert
+      Assert.IsNull(bytes1);
+      Assert.IsNotNull(bytes2);
+      Assert.AreEqual<int>(1, bytes2.Length);
+      Assert.AreEqual<byte>(0x01, bytes2[0]);
+      Assert.IsNull(bytes3);
+      Assert.IsNull(bytes4);
+      Assert.IsNull(bytes5);
+    }
+
+    [TestMethod, TestCategory("CircularBuffer")]
+    public void ReadBytesUpTo_basic8()
+    {
+      // Arrange
+      var buffer = new CircularBuffer();
+      buffer.Add(new byte[] { 0x01, 0x1E, 0x1D, 0x02, 0x1E });
+
+      // Act
+      byte[] bytes1 = buffer.ReadBytesUpTo(0x1E, 0x1D);
+      byte[] bytes2 = buffer.ReadBytesUpTo(0x1E, 0x1D);
+      byte[] bytes3 = buffer.ReadBytesUpTo(0x1E, 0x1D);
+      byte[] bytes4 = buffer.ReadBytesUpTo(0x1E, 0x1D);
+      byte[] bytes5 = buffer.ReadBytesUpTo(0x1E, 0x1D);
+
+      // Assert
+      Assert.IsNotNull(bytes1);
+      Assert.AreEqual<int>(1, bytes1.Length);
+      Assert.AreEqual<byte>(0x01, bytes1[0]);
+
+      Assert.IsNotNull(bytes2);
+      Assert.AreEqual<int>(1, bytes2.Length);
+      Assert.AreEqual<byte>(0x02, bytes2[0]);
+
+      Assert.IsNull(bytes4);
     }
     #endregion
   }
