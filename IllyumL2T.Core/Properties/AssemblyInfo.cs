@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("IllyumL2T")]
-[assembly: AssemblyDescription("A set of classes to parse delimiter-separated values in lines of text and map them into .NET CLR objects")]
+[assembly: AssemblyDescription("A set of classes to parse delimiter-separated or positional values in lines of text and map them into .NET CLR objects")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Illyum")]
 [assembly: AssemblyProduct("IllyumL2T")]
