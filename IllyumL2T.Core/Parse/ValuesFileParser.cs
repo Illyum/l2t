@@ -40,14 +40,32 @@ namespace IllyumL2T.Core.Parse
         throw new ArgumentNullException($"{nameof(BinaryReader)} reader");
       }
 
-      FieldsSplitterBase<T> fieldsSplitter = CreateValuesFieldsSplitter(); //simplest initial positional case, with no separators or delimiters whatsoever.
+      char? separator = null;
+      if (unit_separator.HasValue)
+      {
+        separator = (char)unit_separator;
+      }
+      FieldsSplitterBase<T> fieldsSplitter = CreateValuesFieldsSplitter(delimiter: separator);
       var lineParser = new LineParser<T>(fieldsSplitter);
-      return ReadBytesAsBinary(reader, lineParser);
+      if (group_separator.HasValue || record_separator.HasValue)
+      {
+        return ReadBytesAsBinary(reader, lineParser, group_separator, record_separator);
+      }
+      else
+      {
+        return ReadBytesAsBinary(reader, lineParser);
+      }
     }
 
+    /// <summary>
+    /// Simplest initial positional case, with no separators or delimiters whatsoever.
+    /// </summary>
+    /// <param name="reader"></param>
+    /// <param name="lineParser"></param>
+    /// <returns></returns>
     private IEnumerable<ParseResult<T>> ReadBytesAsBinary(BinaryReader reader, ILineParser<T> lineParser)
     {
-      var marshaller = new Marshaller<T>(lineParser);
+      var marshaller = new FixedLengthMarshaller<T>(lineParser);
       foreach (var result in marshaller.Read(new PacketReader(reader)))
       {
         yield return result;
@@ -61,14 +79,9 @@ namespace IllyumL2T.Core.Parse
     /// Message layout: fixed-length or delimited
       //TODO: For byte[] parsing, be aware that bytes could be deserialized as System.String or as a .NET ValueType.
     /// </summary>
-    /// <param name="reader"></param>
-    /// <param name="group_separator"></param>
-    /// <param name="record_separator"></param>
-    /// <param name="unit_separator"></param>
-    /// <returns></returns>
-    private IEnumerable<ParseResult<T>> ReadBytesAsBinary(BinaryReader reader, byte? group_separator, byte? record_separator, byte? unit_separator)
+    private IEnumerable<ParseResult<T>> ReadBytesAsBinary(BinaryReader reader, ILineParser<T> lineParser, byte? group_separator, byte? record_separator)
     {
-      var marshaller = new Marshaller<T>(null);
+      var marshaller = new SeparatorMarshaller<T>(lineParser, group_separator, record_separator);
       foreach (var result in marshaller.Read(new PacketReader(reader)))
       {
         yield return result;
@@ -159,33 +172,32 @@ namespace IllyumL2T.Core.Parse
   }
   public interface IMessageReader
   {
-    IEnumerable<byte[]> ReadNextMessageFrom(byte[] packet);
+    IEnumerable<byte[]> ReadNextFixedLengthMessageFrom(byte[] packet);
+    IEnumerable<byte[]> ReadNextDelimiterSeparatedValuesMessageFrom(byte[] packet);
   }
-  public class Marshaller<T> where T : class, new()
+  public abstract class Marshaller<T> where T : class, new()
   {
-    private Type SchemaToRead;
-    private int message_size;
     private ILineParser<T> lineParser;
+
+    protected Type SchemaToRead;
+    protected IMessageReader messageReader;
 
     public Marshaller(ILineParser<T> lineParser)
     {
       this.lineParser = lineParser;
       SchemaToRead = typeof(T);
-      message_size = CalculateTotalDeclaredSize(SchemaToRead);
     }
 
     public IEnumerable<ParseResult<T>> Read(IPacketReader packetReader)
     {
-      IMessageReader messageReader = new MessageReader((uint)message_size);
-
       foreach (byte[] packet in packetReader.ReadNextPacket())
       {
-        foreach (byte[] message in messageReader.ReadNextMessageFrom(packet))
+        foreach (byte[] message in ReadNextMessageFrom(packet))
         {
           string message_line = Provisional_ForExploratoryPurposes_DefaultToUTF8String(message);
           yield return lineParser.Parse(message_line);
 
-          //string[] values = ParseAsStrings(message);
+          //string[] values = ReadAsStrings(message);
           //IEnumerable<byte[]> values = ReadAsBytesArrays(message);
           //var messageParser = new MessageParser<T>();
           //yield return messageParser.Parse(values, message);
@@ -194,12 +206,14 @@ namespace IllyumL2T.Core.Parse
       }
     }
 
+    protected abstract IEnumerable<byte[]> ReadNextMessageFrom(byte[] packet);
+
     /// <summary>
     /// A first try to link with the existing design.
     /// </summary>
     /// <param name="message">Data message</param>
-    /// <returns>Values to be parsed by a LineParser-derived class.</returns>
-    public string[] ParseAsStrings(byte[] message)
+    /// <returns>Values to be parse by a LineParser-derived class.</returns>
+    public string[] ReadAsStrings(byte[] message)
     {
       var result = new List<string>();
       var buffer = new CircularBuffer((uint)message.Length);
@@ -246,14 +260,45 @@ namespace IllyumL2T.Core.Parse
       return result;
     }
 
-    private int CalculateTotalDeclaredSize(Type type) => type.GetProperties().Select(p => (IllyumL2T.Core.ParseBehaviorAttribute)p.GetCustomAttributes(typeof(IllyumL2T.Core.ParseBehaviorAttribute), true).First()).Where(attr => attr.Length > 0).Sum(a => a.Length);
     private IEnumerable<uint> GetPropertyLengths(Type type) => type.GetProperties().Select(p => (IllyumL2T.Core.ParseBehaviorAttribute)p.GetCustomAttributes(typeof(IllyumL2T.Core.ParseBehaviorAttribute), true).First()).Select(attr => (uint)attr.Length);
+
     private string Provisional_ForExploratoryPurposes_DefaultToUTF8String(byte[] dataitem)
     {
       //TODO: check the possible requirements for binary vs text declarations.
       return System.Text.Encoding.UTF8.GetString(dataitem);
     }
   }
+
+  public class FixedLengthMarshaller<T> : Marshaller<T> where T : class, new()
+  {
+    private int message_size;
+
+    public FixedLengthMarshaller(ILineParser<T> lineParser) : base(lineParser)
+    {
+      message_size = CalculateTotalDeclaredSize(SchemaToRead);
+      messageReader = new MessageReader((uint)message_size);
+    }
+
+    protected override IEnumerable<byte[]> ReadNextMessageFrom(byte[] packet) => messageReader.ReadNextFixedLengthMessageFrom(packet);
+
+    private int CalculateTotalDeclaredSize(Type type) => type.GetProperties().Select(p => (IllyumL2T.Core.ParseBehaviorAttribute)p.GetCustomAttributes(typeof(IllyumL2T.Core.ParseBehaviorAttribute), true).First()).Where(attr => attr.Length > 0).Sum(a => a.Length);
+  }
+
+  public class SeparatorMarshaller<T> : Marshaller<T> where T : class, new()
+  {
+    //private byte group_separator;
+    //private byte record_separator;
+
+    public SeparatorMarshaller(ILineParser<T> lineParser, byte? group_separator, byte? record_separator) : base(lineParser)
+    {
+      //this.group_separator = group_separator;
+      //this.record_separator = record_separator;
+      messageReader = new MessageReader(group_separator, record_separator);
+    }
+
+    protected override IEnumerable<byte[]> ReadNextMessageFrom(byte[] packet) => messageReader.ReadNextDelimiterSeparatedValuesMessageFrom(packet);
+  }
+
 
   public class PacketReader : IPacketReader
   {
@@ -290,8 +335,27 @@ namespace IllyumL2T.Core.Parse
   {
     private CircularBuffer buffer;
     private uint message_size;
+    private byte[] separators;
 
     public MessageReader(uint message_size) : this(new CircularBuffer(), message_size) { }
+
+    public MessageReader(byte? group_separator, byte? record_separator) : this(new CircularBuffer(), 0)
+    {
+      if (!(group_separator.HasValue || record_separator.HasValue))
+      {
+        throw new ArgumentNullException($"{nameof(group_separator)} and {nameof(record_separator)}");
+      }
+      var bytes = new List<byte>();
+      if (group_separator.HasValue)
+      {
+        bytes.Add(group_separator.Value);
+      }
+      if (record_separator.HasValue)
+      {
+        bytes.Add(record_separator.Value);
+      }
+      separators = bytes.ToArray();
+    }
 
     public MessageReader(CircularBuffer buffer, uint message_size)
     {
@@ -299,7 +363,7 @@ namespace IllyumL2T.Core.Parse
       this.message_size = message_size;
     }
 
-    public IEnumerable<byte[]> ReadNextMessageFrom(byte[] packet)
+    public IEnumerable<byte[]> ReadNextFixedLengthMessageFrom(byte[] packet)
     {
       buffer.Add(packet);
       do //to fetch all messages from the packet
@@ -313,8 +377,22 @@ namespace IllyumL2T.Core.Parse
         yield return rawMessage;
       } while (true);
     }
+
+    public IEnumerable<byte[]> ReadNextDelimiterSeparatedValuesMessageFrom(byte[] packet)
+    {
+      buffer.Add(packet);
+      do //to fetch all messages from the packet
+      {
+        byte[] rawMessage = buffer.ReadBytesUpTo(separators);
+        if (rawMessage == null)
+        {
+          yield break;
+        }
+        yield return rawMessage;
+      } while (true);
+    }
   }
-  public class CircularBuffer //TODO: There are a bunch of unit tests for this class. Once evaluated here, those unit test must be added here as well.
+  public class CircularBuffer //TODO: There are a bunch of unit tests for this class. Once evaluated here, those unit tests should be added here as well.
   {
     public uint CurrentMaxSize;
     public uint CurrentSize;
@@ -409,6 +487,28 @@ namespace IllyumL2T.Core.Parse
           CurrentSize -= size;
           read_index = (read_index + size) % CurrentMaxSize;
         }
+      }
+      return result;
+    }
+
+    public byte[] ReadBytesUpTo(params byte[] separators)
+    {
+      if (separators == null)
+      {
+        throw new ArgumentNullException(nameof(separators));
+      }
+
+      byte[] result = null;
+      byte[] current_bytes = GetBytes(CurrentSize);
+      if (current_bytes != null && current_bytes.Any(b => separators.Any(s => s == b)))
+      {
+//System.Diagnostics.Trace.WriteLine(current_bytes.Aggregate(new System.Text.StringBuilder(), (whole, next) => whole.AppendFormat("{0}\n", next)).ToString());
+        var fragment = current_bytes.TakeWhile(b => !separators.Any(s => s == b));
+        uint result_count = (uint)fragment.Count();
+        result = ReadBytes(result_count);
+        var skip = ReadBytes(1);
+
+        //uint skip_count = (uint)current_bytes.Count(b => !separators.Any(s => s == b));
       }
       return result;
     }

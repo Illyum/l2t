@@ -294,7 +294,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
     /// <summary>
     /// Delimited packets & Delimited messages && Delimited values; that is, packets, messages and values have separators.
     /// </summary>
-    [TestMethod, Ignore]
+    [TestMethod]
     public void MemoryStreamAsDelimitedBinaryTest()
     {
       // Arrange
@@ -326,7 +326,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
     /// <summary>
     /// Delimited packets (implicitly) & Delimited messages & Positional values; that is, packets, messages have separators and values are positional.
     /// </summary>
-    [TestMethod, Ignore]
+    [TestMethod]
     public void MemoryStreamAsMixedPositionalDelimitedBinaryTest()
     {
       // Arrange
@@ -377,6 +377,88 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
       // Assert
       Assert.AreEqual<int>(5, latin1_bytes.Length);
       Assert.AreEqual<int>(6, utf8_bytes.Length);
+    }
+
+
+    [TestMethod, TestCategory("CircularBuffer")]
+    public void ReadBytesUpTo_basic0()
+    {
+      // Arrange
+      var buffer = new CircularBuffer();
+      buffer.Add(new byte[] { 0x01, 0x09 });
+
+      // Act
+      byte[] bytes = buffer.ReadBytesUpTo(0x09);
+
+      // Assert
+      Assert.IsNotNull(bytes);
+      Assert.AreEqual<int>(1, bytes.Length);
+      Assert.AreEqual<byte>(0x01, bytes[0]);
+    }
+
+    [TestMethod, TestCategory("CircularBuffer")]
+    public void ReadBytesUpTo_basic1()
+    {
+      // Arrange
+      var buffer = new CircularBuffer();
+      buffer.Add(new byte[] { 0x01, 0x0D });
+
+      // Act
+      byte[] bytes = buffer.ReadBytesUpTo(0x09, 0x0D);
+
+      // Assert
+      Assert.IsNotNull(bytes);
+      Assert.AreEqual<int>(1, bytes.Length);
+      Assert.AreEqual<byte>(0x01, bytes[0]);
+    }
+
+    [TestMethod, TestCategory("CircularBuffer")]
+    public void ReadBytesUpTo_basic2()
+    {
+      // Arrange
+      var buffer = new CircularBuffer();
+      buffer.Add(new byte[] { });
+
+      // Act
+      byte[] bytes = buffer.ReadBytesUpTo(0x09);
+
+      // Assert
+      Assert.IsNull(bytes);
+    }
+
+    [TestMethod, TestCategory("CircularBuffer")]
+    public void ReadBytesUpTo_basic3()
+    {
+      // Arrange
+      var buffer = new CircularBuffer();
+      buffer.Add(new byte[] { 0x01, 0x09 });
+
+      // Act
+      byte[] bytes = buffer.ReadBytesUpTo(0x0D, 0x1E);
+
+      // Assert
+      Assert.IsNull(bytes);
+    }
+
+    [TestMethod, TestCategory("CircularBuffer")]
+    public void ReadBytesUpTo_basic4()
+    {
+      // Arrange
+      var buffer = new CircularBuffer();
+      buffer.Add(new byte[] { 0x01, 0x09, 0x02, 0x0D });
+
+      // Act
+      byte[] bytes1 = buffer.ReadBytesUpTo(0x09, 0x0D);
+      byte[] bytes2 = buffer.ReadBytesUpTo(0x09, 0x0D);
+
+      // Assert
+      Assert.IsNotNull(bytes1);
+      Assert.AreEqual<int>(1, bytes1.Length);
+      Assert.AreEqual<byte>(0x01, bytes1[0]);
+
+      Assert.IsNotNull(bytes2);
+      Assert.AreEqual<int>(1, bytes2.Length);
+      Assert.AreEqual<byte>(0x02, bytes2[0]);
     }
   }
 }
