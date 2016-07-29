@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.IO;
+using System.Linq;
+using System.Collections.Generic;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using Moq;
-
-using IllyumL2T.Core.FieldsSplit;
 using IllyumL2T.Core.Parse;
 
 namespace IllyumL2T.Core.FieldsSplit.UnitTests

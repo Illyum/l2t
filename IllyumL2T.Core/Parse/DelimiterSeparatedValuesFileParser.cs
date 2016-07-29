@@ -7,7 +7,7 @@ namespace IllyumL2T.Core.Parse
   
   public class DelimiterSeparatedValuesFileParser<T> : ValuesFileParser<T> where T : class, new()
   {
-    public override FieldsSplitterBase<T> CreateValuesFieldsSplitter(char? delimiter = null)
+    protected override FieldsSplitterBase<T> CreateValuesFieldsSplitter(char? delimiter = null)
     {
       if (!delimiter.HasValue)
       {
