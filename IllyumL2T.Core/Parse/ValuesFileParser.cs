@@ -24,6 +24,7 @@ namespace IllyumL2T.Core.Parse
     /// References:
     /// http://unicode-table.com
     /// http://www.asciitable.com
+    /// http://ascii-table.com
     /// </summary>
     /// <param name="reader">Reader which reads a System.IO.Stream as binary.</param>
     /// <param name="group_separator">Optional. Separator o delimiter for a group records.</param>
@@ -165,6 +166,18 @@ namespace IllyumL2T.Core.Parse
     protected abstract FieldsSplitterBase<T> CreateValuesFieldsSplitter(char? delimiter = null);
   }
 
+  public class ByteReader
+  {
+    public IEnumerable<byte[]> Read(BinaryReader reader, byte start_of_text, byte end_of_text)
+    {
+      var marshaller = new ByteMarshaller();
+      foreach (var result in marshaller.Read(new PacketReader(reader), start_of_text, end_of_text))
+      {
+        yield return result;
+      }
+    }
+  }
+
   //TODO:Temporally here. Once evaluated, then they could move at a proper location.
   #region bytes as binary
   public interface IPacketReader
@@ -295,6 +308,21 @@ namespace IllyumL2T.Core.Parse
     protected override IEnumerable<byte[]> ReadNextMessageFrom(byte[] packet) => messageReader.ReadNextDelimiterSeparatedValuesMessageFrom(packet);
   }
 
+  internal class ByteMarshaller
+  {
+    public IEnumerable<byte[]> Read(IPacketReader packetReader, byte start_of_text, byte end_of_text)
+    {
+      var messageReader = new MessageReader(start_of_text, end_of_text);
+
+      foreach (byte[] packet in packetReader.ReadNextPacket())
+      {
+        foreach (byte[] message in messageReader.ReadNextDelimiterSeparatedValuesMessageFrom(packet))
+        {
+          yield return message;
+        }
+      }
+    }
+  }
 
   public class PacketReader : IPacketReader
   {
