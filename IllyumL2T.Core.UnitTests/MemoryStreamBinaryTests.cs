@@ -430,6 +430,95 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
       Assert.AreEqual<int>(6, utf8_bytes.Length);
     }
 
+    [TestMethod]
+    public void Bytes_vs_Chars_DifferenceAwareness_SampleCase2()
+    {
+      // Arrange
+      string lastname = "López";
+      System.Text.Encoding latin1 = System.Text.Encoding.GetEncoding("ISO-8859-1");
+      System.Text.Encoding utf8 = System.Text.Encoding.UTF8;
+
+      var bytes1 = new System.IO.MemoryStream();
+      var writer1 = new System.IO.BinaryWriter(bytes1, latin1);
+      writer1.Write(lastname);
+      bytes1.Position = 0;
+
+      var bytes2 = new System.IO.MemoryStream();
+      var writer2 = new System.IO.BinaryWriter(bytes2, utf8);
+      writer2.Write(lastname);
+      bytes2.Position = 0;
+
+      var reader1 = new System.IO.BinaryReader(bytes1, latin1);
+      var reader2 = new System.IO.BinaryReader(bytes2, utf8);
+
+      // Act
+      char[] chars1 = reader1.ReadChars(0xFF);
+      char[] chars2 = reader2.ReadChars(0xFF);
+
+      // Assert
+      Assert.AreEqual<int>(6, chars1.Length);
+      Assert.AreEqual<int>(6, chars2.Length);
+    }
+
+    [TestMethod]
+    public void Bytes_vs_Chars_DifferenceAwareness_SampleCase3()
+    {
+      // Arrange
+      string lastname = "López";
+      System.Text.Encoding latin1 = System.Text.Encoding.GetEncoding("ISO-8859-1");
+      System.Text.Encoding utf8 = System.Text.Encoding.UTF8;
+      System.Text.Encoding unicode = System.Text.Encoding.Unicode;
+
+      var bytes1 = new System.IO.MemoryStream();
+      var writer1 = new System.IO.BinaryWriter(bytes1, latin1);
+      writer1.Write(lastname);
+      bytes1.Position = 0;
+
+      var bytes2 = new System.IO.MemoryStream();
+      var writer2 = new System.IO.BinaryWriter(bytes2, utf8);
+      writer2.Write(lastname);
+      bytes2.Position = 0;
+
+      var bytes3 = new System.IO.MemoryStream();
+      var writer3 = new System.IO.BinaryWriter(bytes3, unicode);
+      writer3.Write(lastname);
+      bytes3.Position = 0;
+
+      var reader1 = new System.IO.BinaryReader(bytes1, latin1);
+      var reader2 = new System.IO.BinaryReader(bytes2, utf8);
+      var reader3 = new System.IO.BinaryReader(bytes3, unicode);
+
+      // Act
+      char[] chars1 = reader1.ReadChars(5);
+      char[] chars2 = reader2.ReadChars(5);
+      char[] chars3 = reader3.ReadChars(5);
+
+      byte[] expected_char1 = BitConverter.GetBytes(lastname[1]);
+      byte[] char0 = BitConverter.GetBytes(chars2[0]);
+      byte[] char1 = BitConverter.GetBytes(chars2[1]);
+      byte[] char2 = BitConverter.GetBytes(chars2[2]);
+
+      // Assert
+      Assert.AreEqual<int>(5, chars1.Length);
+      Assert.AreEqual<int>(5, chars2.Length);
+      Assert.AreEqual<string>("Lópe", new string(chars1));
+      Assert.AreEqual<string>("Lópe", new string(chars2));
+      Assert.AreEqual<string>("䰊瀀攀稀", new string(chars3));
+
+      Assert.AreEqual<int>(2, char0.Length);
+      Assert.AreEqual<byte>(6, char0[0]);
+      Assert.AreEqual<byte>(0, char0[1]);
+
+      Assert.AreEqual<int>(2, char1.Length);
+      Assert.AreEqual<byte>(76, char1[0]);
+      Assert.AreEqual<byte>(0, char1[1]);
+
+      Assert.AreEqual<int>(expected_char1.Length, char1.Length);
+      CollectionAssert.AreNotEqual(expected_char1, char1);
+      Assert.AreNotEqual<byte>(expected_char1[0], char1[0]);
+      Assert.AreEqual<byte>(expected_char1[1], char1[1]);
+    }
+
     #region CircularButter.ReadBytesUpTo tests
     //TODO:Temporally here. Once evaluated, then they could move at a proper location.
     [TestMethod, TestCategory("CircularBuffer")]

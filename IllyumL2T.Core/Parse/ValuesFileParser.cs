@@ -344,6 +344,9 @@ namespace IllyumL2T.Core.Parse
       byte[] buffer = new byte[buffer_size];
       do
       {
+        //https://msdn.microsoft.com/en-us/library/system.io.binaryreader.readchars(v=vs.110).aspx
+        //char[] chars = source.ReadChars(buffer_size);
+
         int read = source.Read(buffer, 0, buffer_size);
         if (read == 0)
         {
