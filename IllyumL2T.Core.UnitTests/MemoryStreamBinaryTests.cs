@@ -214,7 +214,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
         var parser = new DelimiterSeparatedValuesFileParser<Order>();
 
         // Act
-        var parseResults = parser.Read(reader, group_separator: 0x1D, record_separator: 0x1E, unit_separator: 0x09);
+        var parseResults = parser.Read(reader, group_separator: (char)0x1D, record_separator: (char)0x1E, unit_separator: (char)0x09);
 
         // Assert
         Assert.IsTrue(orders.SequenceEqual(parseResults.Select(parseResult => parseResult.Instance)));
@@ -251,7 +251,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
         var parser = new DelimiterSeparatedValuesFileParser<Order>();
 
         // Act
-        var parseResults = parser.Read(reader, group_separator: 0x1D, record_separator: 0x1E, unit_separator: 0x09);
+        var parseResults = parser.Read(reader, group_separator: (char)0x1D, record_separator: (char)0x1E, unit_separator: (char)0x09);
 
         // Assert
         Assert.IsTrue(orders.SequenceEqual(parseResults.Select(parseResult => parseResult.Instance)));
@@ -290,7 +290,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
         var parser = new PositionalValuesFileParser<SimpleOrder>();
 
         // Act
-        var parseResults = parser.Read(reader, group_separator: null, record_separator: 0x0A, unit_separator: null);
+        var parseResults = parser.Read(reader, group_separator: null, record_separator: (char)0x0A, unit_separator: null);
 
         // Assert
         Assert.IsTrue(orders.SequenceEqual(parseResults.Select(parseResult => parseResult.Instance)));
@@ -332,7 +332,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
         var parser = new PositionalValuesFileParser<SimpleOrder>();
 
         // Act
-        var parseResults = parser.Read(reader, group_separator: 0x02, record_separator: 0x03, unit_separator: null);
+        var parseResults = parser.Read(reader, group_separator: (char)0x02, record_separator: (char)0x03, unit_separator: null);
 
         // Assert
         Assert.IsTrue(orders.SequenceEqual(parseResults.Select(parseResult => parseResult.Instance)));
@@ -377,7 +377,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
         var parser = new PositionalValuesFileParser<SimpleOrder>();
 
         // Act
-        var parseResults = parser.Read(reader, group_separator: 0x02, record_separator: 0x03, unit_separator: null);
+        var parseResults = parser.Read(reader, group_separator: (char)0x02, record_separator: (char)0x03, unit_separator: null);
 
         // Assert
         Assert.IsTrue(orders.SequenceEqual(parseResults.Select(parseResult => parseResult.Instance)));
@@ -413,6 +413,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
       }
     }
 
+    #region Bytes vs Chars difference awareness
     [TestMethod]
     public void Bytes_vs_Chars_DifferenceAwareness_SampleCase1()
     {
@@ -518,7 +519,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
       Assert.AreNotEqual<byte>(expected_char1[0], char1[0]);
       Assert.AreEqual<byte>(expected_char1[1], char1[1]);
     }
-
+    #endregion
     #region CircularButter.ReadBytesUpTo tests
     //TODO:Temporally here. Once evaluated, then they could move at a proper location.
     [TestMethod, TestCategory("CircularBuffer")]
@@ -526,15 +527,15 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
     {
       // Arrange
       var buffer = new CircularBuffer();
-      buffer.Add(new byte[] { 0x01, 0x09 });
+      buffer.Add(new char[] { (char)0x01, (char)0x09 });
 
       // Act
-      byte[] bytes = buffer.ReadBytesUpTo(0x09);
+      char[] bytes = buffer.ReadBytesUpTo((char)0x09);
 
       // Assert
       Assert.IsNotNull(bytes);
       Assert.AreEqual<int>(1, bytes.Length);
-      Assert.AreEqual<byte>(0x01, bytes[0]);
+      Assert.AreEqual<char>((char)0x01, bytes[0]);
     }
 
     [TestMethod, TestCategory("CircularBuffer")]
@@ -542,15 +543,15 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
     {
       // Arrange
       var buffer = new CircularBuffer();
-      buffer.Add(new byte[] { 0x01, 0x0D });
+      buffer.Add(new char[] { (char)0x01, (char)0x0D });
 
       // Act
-      byte[] bytes = buffer.ReadBytesUpTo(0x09, 0x0D);
+      char[] bytes = buffer.ReadBytesUpTo((char)0x09, (char)0x0D);
 
       // Assert
       Assert.IsNotNull(bytes);
       Assert.AreEqual<int>(1, bytes.Length);
-      Assert.AreEqual<byte>(0x01, bytes[0]);
+      Assert.AreEqual<char>((char)0x01, bytes[0]);
     }
 
     [TestMethod, TestCategory("CircularBuffer")]
@@ -558,10 +559,10 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
     {
       // Arrange
       var buffer = new CircularBuffer();
-      buffer.Add(new byte[] { });
+      buffer.Add(new char[] { });
 
       // Act
-      byte[] bytes = buffer.ReadBytesUpTo(0x09);
+      char[] bytes = buffer.ReadBytesUpTo((char)0x09);
 
       // Assert
       Assert.IsNull(bytes);
@@ -572,10 +573,10 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
     {
       // Arrange
       var buffer = new CircularBuffer();
-      buffer.Add(new byte[] { 0x01, 0x09 });
+      buffer.Add(new char[] { (char)0x01, (char)0x09 });
 
       // Act
-      byte[] bytes = buffer.ReadBytesUpTo(0x0D, 0x1E);
+      char[] bytes = buffer.ReadBytesUpTo((char)0x0D, (char)0x1E);
 
       // Assert
       Assert.IsNull(bytes);
@@ -586,20 +587,20 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
     {
       // Arrange
       var buffer = new CircularBuffer();
-      buffer.Add(new byte[] { 0x01, 0x09, 0x02, 0x0D });
+      buffer.Add(new char[] { (char)0x01, (char)0x09, (char)0x02, (char)0x0D });
 
       // Act
-      byte[] bytes1 = buffer.ReadBytesUpTo(0x09, 0x0D);
-      byte[] bytes2 = buffer.ReadBytesUpTo(0x09, 0x0D);
+      char[] bytes1 = buffer.ReadBytesUpTo((char)0x09, (char)0x0D);
+      char[] bytes2 = buffer.ReadBytesUpTo((char)0x09, (char)0x0D);
 
       // Assert
       Assert.IsNotNull(bytes1);
       Assert.AreEqual<int>(1, bytes1.Length);
-      Assert.AreEqual<byte>(0x01, bytes1[0]);
+      Assert.AreEqual<char>((char)0x01, bytes1[0]);
 
       Assert.IsNotNull(bytes2);
       Assert.AreEqual<int>(1, bytes2.Length);
-      Assert.AreEqual<byte>(0x02, bytes2[0]);
+      Assert.AreEqual<char>((char)0x02, bytes2[0]);
     }
 
     [TestMethod, TestCategory("CircularBuffer")]
@@ -607,10 +608,10 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
     {
       // Arrange
       var buffer = new CircularBuffer();
-      buffer.Add(new byte[] { 0x0D });
+      buffer.Add(new char[] { (char)0x0D });
 
       // Act
-      byte[] bytes = buffer.ReadBytesUpTo(0x09, 0x0D);
+      char[] bytes = buffer.ReadBytesUpTo((char)0x09, (char)0x0D);
 
       // Assert
       Assert.IsNull(bytes);
@@ -621,12 +622,12 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
     {
       // Arrange
       var buffer = new CircularBuffer();
-      buffer.Add(new byte[] { 0x0D, 0x09, 0x0D });
+      buffer.Add(new char[] { (char)0x0D, (char)0x09, (char)0x0D });
 
       // Act
-      byte[] bytes1 = buffer.ReadBytesUpTo(0x09, 0x0D);
-      byte[] bytes2 = buffer.ReadBytesUpTo(0x09, 0x0D);
-      byte[] bytes3 = buffer.ReadBytesUpTo(0x09, 0x0D);
+      char[] bytes1 = buffer.ReadBytesUpTo((char)0x09, (char)0x0D);
+      char[] bytes2 = buffer.ReadBytesUpTo((char)0x09, (char)0x0D);
+      char[] bytes3 = buffer.ReadBytesUpTo((char)0x09, (char)0x0D);
 
       // Assert
       Assert.IsNull(bytes1);
@@ -639,18 +640,18 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
     {
       // Arrange
       var buffer = new CircularBuffer();
-      buffer.Add(new byte[] { 0x0D, 0x01, 0x09, 0x0D, 0x02 });
+      buffer.Add(new char[] { (char)0x0D, (char)0x01, (char)0x09, (char)0x0D, (char)0x02 });
 
       // Act
-      byte[] bytes1 = buffer.ReadBytesUpTo(0x09, 0x0D);
-      byte[] bytes2 = buffer.ReadBytesUpTo(0x09, 0x0D);
-      byte[] bytes3 = buffer.ReadBytesUpTo(0x09, 0x0D);
-      byte[] bytes4 = buffer.ReadBytesUpTo(0x09, 0x0D);
+      char[] bytes1 = buffer.ReadBytesUpTo((char)0x09, (char)0x0D);
+      char[] bytes2 = buffer.ReadBytesUpTo((char)0x09, (char)0x0D);
+      char[] bytes3 = buffer.ReadBytesUpTo((char)0x09, (char)0x0D);
+      char[] bytes4 = buffer.ReadBytesUpTo((char)0x09, (char)0x0D);
 
       // Assert
       Assert.IsNotNull(bytes1);
       Assert.AreEqual<int>(1, bytes1.Length);
-      Assert.AreEqual<byte>(0x01, bytes1[0]);
+      Assert.AreEqual<char>((char)0x01, bytes1[0]);
       Assert.IsNull(bytes3);
       Assert.IsNull(bytes4);
     }
@@ -660,23 +661,23 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
     {
       // Arrange
       var buffer = new CircularBuffer();
-      buffer.Add(new byte[] { 0x01, 0x1E, 0x1D, 0x02, 0x1E });
+      buffer.Add(new char[] { (char)0x01, (char)0x1E, (char)0x1D, (char)0x02, (char)0x1E });
 
       // Act
-      byte[] bytes1 = buffer.ReadBytesUpTo(0x1E, 0x1D);
-      byte[] bytes2 = buffer.ReadBytesUpTo(0x1E, 0x1D);
-      byte[] bytes3 = buffer.ReadBytesUpTo(0x1E, 0x1D);
-      byte[] bytes4 = buffer.ReadBytesUpTo(0x1E, 0x1D);
-      byte[] bytes5 = buffer.ReadBytesUpTo(0x1E, 0x1D);
+      char[] bytes1 = buffer.ReadBytesUpTo((char)0x1E, (char)0x1D);
+      char[] bytes2 = buffer.ReadBytesUpTo((char)0x1E, (char)0x1D);
+      char[] bytes3 = buffer.ReadBytesUpTo((char)0x1E, (char)0x1D);
+      char[] bytes4 = buffer.ReadBytesUpTo((char)0x1E, (char)0x1D);
+      char[] bytes5 = buffer.ReadBytesUpTo((char)0x1E, (char)0x1D);
 
       // Assert
       Assert.IsNotNull(bytes1);
       Assert.AreEqual<int>(1, bytes1.Length);
-      Assert.AreEqual<byte>(0x01, bytes1[0]);
+      Assert.AreEqual<char>((char)0x01, bytes1[0]);
 
       Assert.IsNotNull(bytes2);
       Assert.AreEqual<int>(1, bytes2.Length);
-      Assert.AreEqual<byte>(0x02, bytes2[0]);
+      Assert.AreEqual<char>((char)0x02, bytes2[0]);
 
       Assert.IsNull(bytes4);
     }
@@ -686,22 +687,22 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
     {
       // Arrange
       var buffer = new CircularBuffer();
-      buffer.Add(new byte[] { 0x02, 0x20, 0x03, 0x02, 0x21, 0x03 });
+      buffer.Add(new char[] { (char)0x02, (char)0x20, (char)0x03, (char)0x02, (char)0x21, (char)0x03 });
 
       // Act
-      byte[] bytes1 = buffer.ReadBytesUpTo(0x02, 0x03);
-      byte[] bytes2 = buffer.ReadBytesUpTo(0x02, 0x03);
-      byte[] bytes3 = buffer.ReadBytesUpTo(0x02, 0x03);
-      byte[] bytes4 = buffer.ReadBytesUpTo(0x02, 0x03);
+      char[] bytes1 = buffer.ReadBytesUpTo((char)0x02, (char)0x03);
+      char[] bytes2 = buffer.ReadBytesUpTo((char)0x02, (char)0x03);
+      char[] bytes3 = buffer.ReadBytesUpTo((char)0x02, (char)0x03);
+      char[] bytes4 = buffer.ReadBytesUpTo((char)0x02, (char)0x03);
 
       // Assert
       Assert.IsNotNull(bytes1);
       Assert.AreEqual<int>(1, bytes1.Length);
-      Assert.AreEqual<byte>(0x20, bytes1[0]);
+      Assert.AreEqual<char>((char)0x20, bytes1[0]);
 
       Assert.IsNotNull(bytes2);
       Assert.AreEqual<int>(1, bytes2.Length);
-      Assert.AreEqual<byte>(0x21, bytes2[0]);
+      Assert.AreEqual<char>((char)0x21, bytes2[0]);
 
       Assert.IsNull(bytes3);
       Assert.IsNull(bytes4);
