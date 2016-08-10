@@ -404,12 +404,12 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
         var bytes = new ByteReader();
 
         // Act
-        var results = new List<byte[]>(bytes.Read(reader, start_of_text: 0x02, end_of_text: 0x03));
+        var results = new List<char[]>(bytes.Read(reader, start_of_text: (char)0x02, end_of_text: (char)0x03));
 
         // Assert
         Assert.AreEqual<int>(2, results.Count());
-        CollectionAssert.AreEqual(new byte[] { 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29 }, results[0]);
-        CollectionAssert.AreEqual(new byte[] { 0x30, 0x31, 0x32, 0x33, 0x34 }, results[1]);
+        CollectionAssert.AreEqual(new char[] { (char)0x20, (char)0x21, (char)0x22, (char)0x23, (char)0x24, (char)0x25, (char)0x26, (char)0x27, (char)0x28, (char)0x29 }, results[0]);
+        CollectionAssert.AreEqual(new char[] { (char)0x30, (char)0x31, (char)0x32, (char)0x33, (char)0x34 }, results[1]);
       }
     }
 

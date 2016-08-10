@@ -168,7 +168,7 @@ namespace IllyumL2T.Core.Parse
 
   public class ByteReader
   {
-    public IEnumerable<byte[]> Read(BinaryReader reader, byte start_of_text, byte end_of_text)
+    public IEnumerable<char[]> Read(BinaryReader reader, char start_of_text, char end_of_text)
     {
       var marshaller = new ByteMarshaller();
       foreach (var result in marshaller.Read(new PacketReader(reader), start_of_text, end_of_text))
@@ -182,8 +182,7 @@ namespace IllyumL2T.Core.Parse
   #region bytes as binary
   public interface IPacketReader
   {
-    IEnumerable<byte[]> ReadNextBytePacket();
-    IEnumerable<char[]> ReadNextCharPacket();
+    IEnumerable<char[]> ReadNextPacket();
   }
   public interface IMessageReader
   {
@@ -205,7 +204,7 @@ namespace IllyumL2T.Core.Parse
 
     public IEnumerable<ParseResult<T>> Read(IPacketReader packetReader)
     {
-      foreach (char[] packet in packetReader.ReadNextCharPacket())
+      foreach (char[] packet in packetReader.ReadNextPacket())
       {
         foreach (char[] message in ReadNextMessageFrom(packet))
         {
@@ -305,16 +304,15 @@ namespace IllyumL2T.Core.Parse
 
   internal class ByteMarshaller
   {
-    public IEnumerable<byte[]> Read(IPacketReader packetReader, byte start_of_text, byte end_of_text)
+    public IEnumerable<char[]> Read(IPacketReader packetReader, char start_of_text, char end_of_text)
     {
-      //yield break;
-      var messageReader = new MessageReader((char)start_of_text, (char)end_of_text);
+      var messageReader = new MessageReader(start_of_text, end_of_text);
 
-      foreach (char[] packet in packetReader.ReadNextCharPacket())
+      foreach (char[] packet in packetReader.ReadNextPacket())
       {
         foreach (char[] message in messageReader.ReadNextDelimiterSeparatedValuesMessageFrom(packet))
         {
-          yield return System.Text.Encoding.UTF8.GetBytes(message);
+          yield return message;
         }
       }
     }
@@ -334,7 +332,7 @@ namespace IllyumL2T.Core.Parse
     /// A raw data packet could contain zero o more application messages or a fragment of an application message at the end of a data packet.
     /// </summary>
     /// <returns>Iterator for all raw data packets from a given binary source.</returns>
-    public IEnumerable<char[]> ReadNextCharPacket()
+    public IEnumerable<char[]> ReadNextPacket()
     {
       const int buffer_size = 0x400; //Question: What if the incoming packet is larger than this value? Answer: By the Marshaller<T>.Read method, as currently designed, such larger packet will be processed the same as a smaller one: each contained message will be processed and any fragmented message at the end of the packet would be completed with the completing fragment at the start of the next read packet. Moreover, in the case of a larger message inside a larger packet, the same applies, in principle, thanks to the adjusting size of CircularBuffer. Of course, execution-based evidence is needed to backup just that.
       do
