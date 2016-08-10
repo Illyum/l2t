@@ -208,7 +208,7 @@ namespace IllyumL2T.Core.Parse
       {
         foreach (char[] message in ReadNextMessageFrom(packet))
         {
-          string message_line = new string(message);// Provisional_ForExploratoryPurposes_DefaultToUTF8String(message);
+          string message_line = new string(message);
           yield return lineParser.Parse(message_line);
         }
       }
@@ -216,65 +216,7 @@ namespace IllyumL2T.Core.Parse
 
     protected abstract IEnumerable<char[]> ReadNextMessageFrom(char[] packet);
 
-    /// <summary>
-    /// A first try to link with the existing design.
-    /// </summary>
-    /// <param name="message">Data message</param>
-    /// <returns>Values to be parse by a LineParser-derived class.</returns>
-    /*public string[] ReadAsStrings(byte[] message)
-    {
-      var result = new List<string>();
-      var buffer = new CircularBuffer((uint)message.Length);
-      buffer.Add(message);
-
-      foreach (uint bytes_to_read in GetPropertyLengths(SchemaToRead))
-      {
-        string dataitem_as_string = string.Empty;
-        if (bytes_to_read > 0)
-        {
-          byte[] dataitem_bytes = buffer.ReadBytes(bytes_to_read);
-          if (dataitem_bytes == null)
-          {
-            throw new Exception($"No {bytes_to_read} bytes found for dataitem. Message Length: {message.Length}");
-          }
-          dataitem_as_string = Provisional_ForExploratoryPurposes_DefaultToUTF8String(dataitem_bytes);
-        }
-        result.Add(dataitem_as_string);
-      }
-      return result.ToArray();
-    }*/
-
-    /*public IEnumerable<byte[]> ReadAsBytesArrays(byte[] message)
-    {
-      //TODO: analyze input validation
-
-      var result = new List<byte[]>();
-      var buffer = new CircularBuffer((uint)message.Length);
-      buffer.Add(message);
-
-      foreach (uint bytes_to_read in GetPropertyLengths(SchemaToRead))
-      {
-        byte[] dataitem_bytes = null;
-        if (bytes_to_read > 0)
-        {
-          dataitem_bytes = buffer.ReadBytes(bytes_to_read);
-          if (dataitem_bytes == null)
-          {
-            throw new Exception($"No {bytes_to_read} bytes found for dataitem. Message Length: {message.Length}");
-          }
-        }
-        result.Add(dataitem_bytes);
-      }
-      return result;
-    }*/
-
     private IEnumerable<uint> GetPropertyLengths(Type type) => type.GetProperties().Select(p => (IllyumL2T.Core.ParseBehaviorAttribute)p.GetCustomAttributes(typeof(IllyumL2T.Core.ParseBehaviorAttribute), true).First()).Select(attr => (uint)attr.Length);
-
-    /*private string Provisional_ForExploratoryPurposes_DefaultToUTF8String(byte[] dataitem)
-    {
-      //TODO: check the possible requirements for binary vs text declarations.
-      return System.Text.Encoding.UTF8.GetString(dataitem);
-    }*/
   }
 
   internal class FixedLengthMarshaller<T> : Marshaller<T> where T : class, new()
@@ -344,28 +286,6 @@ namespace IllyumL2T.Core.Parse
           yield break;
         }
         yield return chars;
-      } while (true);
-    }
-
-    /// <summary>
-    /// From a given binary source, it provides all contained data packets from that binary source.
-    /// A raw data packet could contain zero o more application messages or a fragment of an application message at the end of a data packet.
-    /// </summary>
-    /// <returns>Iterator for all raw data packets from a given binary source.</returns>
-    public IEnumerable<byte[]> ReadNextBytePacket()
-    {
-      const int buffer_size = 0x400; //Question: What if the incoming packet is larger than this value? Answer: By the Marshaller<T>.Read method, as currently designed, such larger packet will be processed the same as a smaller one: each contained message will be processed and any fragmented message at the end of the packet would be completed with the completing fragment at the start of the next read packet. Moreover, in the case of a larger message inside a larger packet, the same applies, in principle, thanks to the adjusting size of CircularBuffer. Of course, execution-based evidence is needed to backup just that.
-      byte[] buffer = new byte[buffer_size];
-      do
-      {
-        int read = source.Read(buffer, 0, buffer_size);
-        if (read == 0)
-        {
-          yield break;
-        }
-        byte[] packet = new byte[read];
-        Array.Copy(buffer, packet, read);
-        yield return packet;
       } while (true);
     }
   }
