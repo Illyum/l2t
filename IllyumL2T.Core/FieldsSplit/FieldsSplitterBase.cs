@@ -21,5 +21,8 @@ namespace IllyumL2T.Core.FieldsSplit
     }
 
     public abstract string[] Split(string line);
+
+    //maybe:
+    //public abstract List<byte[]> Split(byte[] line);
   }
 }
