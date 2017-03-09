@@ -39,12 +39,14 @@
   <ItemGroup>
     <Compile Include="FieldsSplit\FieldsSplitterBase.cs" />
     <Compile Include="FieldsSplit\PositionalValuesFieldsSplitter.cs" />
+    <Compile Include="Parse\BlankLineMode.cs" />
     <Compile Include="Parse\FieldParser.cs" />
     <Compile Include="Parse\FieldParserResolver.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Interfaces\IFieldParser.cs" />
     <Compile Include="Interfaces\ILineParser.cs" />
+    <Compile Include="Parse\FileParseBehaviorAttribute.cs" />
     <Compile Include="Parse\LineParser.cs" />
     <Compile Include="Parse\ParseBehaviorAttribute.cs" />
     <Compile Include="Parse\DelimiterSeparatedValuesFileParser.cs" />

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.IO;
 using System.Collections.Generic;
 
@@ -10,10 +11,15 @@ namespace IllyumL2T.Core.Parse
   public abstract class ValuesFileParser<T> where T : class, new()
   {
     protected ILineParser<T> _lineParser;
+    protected FileParseBehaviorAttribute _fileParseBehavior;
 
     public ValuesFileParser()
     {
       _lineParser = new LineParser<T>();
+
+      var attributes = typeof(T).GetCustomAttributes(false);
+      var attribute = (FileParseBehaviorAttribute)attributes.SingleOrDefault(a => a.GetType().IsAssignableFrom(typeof(FileParseBehaviorAttribute)));
+      _fileParseBehavior = attribute ?? new FileParseBehaviorAttribute();
     }
 
     public IEnumerable<ParseResult<T>> Read(StreamReader reader, char delimiter, bool includeHeaders)
@@ -54,14 +60,30 @@ namespace IllyumL2T.Core.Parse
       while (true)
       {
         var line = reader.ReadLine();
-        if (String.IsNullOrEmpty(line) == false)
+        if (line == null) //This is the condition to finish the iteration. Based on http://msdn.microsoft.com/en-us/library/system.io.streamreader.readline(v=vs.110).aspx
         {
-          var parseResult = lineParser.Parse(line);
-          yield return parseResult;
+          yield break;
+        }
+
+        bool blankLine = String.IsNullOrWhiteSpace(line);
+
+        if (blankLine && _fileParseBehavior.BlankLineMode == BlankLineMode.Stop)
+        {
+          yield break;
+        }
+
+        if (blankLine && _fileParseBehavior.BlankLineMode == BlankLineMode.Skip)
+        {
+          continue;
+        }
+
+        if (blankLine && _fileParseBehavior.BlankLineMode == BlankLineMode.Nulled)
+        {
+          yield return new ParseResult<T> { Instance = default(T), Line = line };
         }
         else
         {
-          yield break;
+          yield return lineParser.Parse(line);
         }
       }
     }

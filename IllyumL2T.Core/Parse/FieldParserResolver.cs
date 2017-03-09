@@ -7,9 +7,9 @@ using IllyumL2T.Core.Interfaces;
 
 namespace IllyumL2T.Core.Parse
 {
-  public class FieldParserResolver
+  public static class FieldParserResolver
   {
-    static Dictionary<Type, Func<IFieldParser, object>> _parseMethods;
+    private static readonly Dictionary<Type, Func<IFieldParser, object>> _parseMethods;
 
     static FieldParserResolver()
     {
@@ -38,7 +38,7 @@ namespace IllyumL2T.Core.Parse
       return _parseMethods[key];
     }
 
-    static object ParseBoolean(IFieldParser fieldParser)
+    private static object ParseBoolean(IFieldParser fieldParser)
     {
       var input = fieldParser.FieldInput;
       if(String.IsNullOrEmpty(input))
@@ -57,7 +57,7 @@ namespace IllyumL2T.Core.Parse
       }
     }
 
-    static object ParseDateTime(IFieldParser fieldParser)
+    private static object ParseDateTime(IFieldParser fieldParser)
     {
       var input = fieldParser.FieldInput;
       if(String.IsNullOrEmpty(input))
@@ -78,7 +78,7 @@ namespace IllyumL2T.Core.Parse
       return null;
     }
 
-    static object ParseChar(IFieldParser fieldParser)
+    private static object ParseChar(IFieldParser fieldParser)
     {
       var input = fieldParser.FieldInput;
 
@@ -90,37 +90,37 @@ namespace IllyumL2T.Core.Parse
       return null;
     }
 
-    static object ParseByte(IFieldParser fieldParser)
+    private static object ParseByte(IFieldParser fieldParser)
     {
       return ParseNumber<byte>(fieldParser, byte.TryParse);
     }
 
-    static object ParseInt16(IFieldParser fieldParser)
+    private static object ParseInt16(IFieldParser fieldParser)
     {
       return ParseNumber<Int16>(fieldParser, Int16.TryParse);
     }
 
-    static object ParseInt32(IFieldParser fieldParser)
+    private static object ParseInt32(IFieldParser fieldParser)
     {
       return ParseNumber<Int32>(fieldParser, Int32.TryParse);
     }
 
-    static object ParseInt64(IFieldParser fieldParser)
+    private static object ParseInt64(IFieldParser fieldParser)
     {
       return ParseNumber<Int64>(fieldParser, Int64.TryParse);
     }
 
-    static object ParseDecimal(IFieldParser fieldParser)
+    private static object ParseDecimal(IFieldParser fieldParser)
     {
       return ParseNumber<decimal>(fieldParser, decimal.TryParse);
     }
 
-    static object ParseSingle(IFieldParser fieldParser)
+    private static object ParseSingle(IFieldParser fieldParser)
     {
       return ParseNumber<float>(fieldParser, float.TryParse);
     }
 
-    static object ParseDouble(IFieldParser fieldParser)
+    private static object ParseDouble(IFieldParser fieldParser)
     {
       return ParseNumber<double>(fieldParser, double.TryParse);
     }
@@ -129,7 +129,7 @@ namespace IllyumL2T.Core.Parse
 
     delegate bool Parse<T>(string input, NumberStyles numberStyle, CultureInfo cultureInfo, out T result) where T : struct;
 
-    static T? ParseNumber<T>(IFieldParser fieldParser, Parse<T> parse) where T : struct
+    private static T? ParseNumber<T>(IFieldParser fieldParser, Parse<T> parse) where T : struct
     {
       var input = fieldParser.FieldInput;
       if(String.IsNullOrEmpty(input))

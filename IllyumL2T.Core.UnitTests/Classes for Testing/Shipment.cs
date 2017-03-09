@@ -3,7 +3,7 @@ using System.Globalization;
 
 namespace IllyumL2T.Core.FieldsSplit.UnitTests
 {
-  class Order
+  class Shipment
   {
     public short OrderId { get; set; }
 
@@ -17,9 +17,9 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
 
     public override bool Equals(object other)
     {
-      if(other is Order)
+      if (other is Shipment)
       {
-        return ((Order) other).GetHashCode() == this.GetHashCode();
+        return ((Shipment)other).GetHashCode() == this.GetHashCode();
       }
 
       return false;

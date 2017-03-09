@@ -57,6 +57,9 @@
   <ItemGroup>
     <Compile Include="Classes for Testing\BadRecords.cs" />
     <Compile Include="Classes for Testing\Foo.cs" />
+    <Compile Include="Classes for Testing\Shipment.cs" />
+    <Compile Include="Classes for Testing\ShipmentNulled.cs" />
+    <Compile Include="Classes for Testing\ShipmentSkipBlanks.cs" />
     <Compile Include="Classes for Testing\SimpleOrder.cs" />
     <Compile Include="FieldParserTests.cs" />
     <Compile Include="LineParserTests.cs" />
