@@ -22,12 +22,12 @@ namespace IllyumL2T.Core.Parse
       _fileParseBehavior = attribute ?? new FileParseBehaviorAttribute();
     }
 
-    public IEnumerable<ParseResult<T>> Read(StreamReader reader, char delimiter, bool includeHeaders)
+    public IEnumerable<ParseResult<T>> Read(TextReader reader, char delimiter, bool includeHeaders)
     {
       return ReadAsTemplateMethod(reader, includeHeaders: includeHeaders, delimiter: delimiter);
     }
 
-    public IEnumerable<ParseResult<T>> Read(StreamReader reader, bool includeHeaders)
+    public IEnumerable<ParseResult<T>> Read(TextReader reader, bool includeHeaders)
     {
       return ReadAsTemplateMethod(reader, includeHeaders: includeHeaders);
     }
@@ -41,7 +41,7 @@ namespace IllyumL2T.Core.Parse
     /// <param name="includeHeaders">Are there headers in the first input line?</param>
     /// <param name="delimiter">Optional. Used for the case of delimited field splitting policy.</param>
     /// <returns>Iterator with the parsed results.</returns>
-    protected IEnumerable<ParseResult<T>> ReadAsTemplateMethod(StreamReader reader, bool includeHeaders, char? delimiter = null)
+    protected IEnumerable<ParseResult<T>> ReadAsTemplateMethod(TextReader reader, bool includeHeaders, char? delimiter = null)
     {
       if (reader == null)
       {
