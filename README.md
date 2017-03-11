@@ -27,7 +27,7 @@ class Order
   public DateTime DeliveryDate { get; set; }
 }
 ```
-With those in place, the IllyumL2T `LineParser` class allows to read the field values and store them an Order instance like this:
+With those in place, the IllyumL2T `LineParser` class allows to read the field values and store them into an Order instance like this:
 ```
 var line = "10248, 1.10, Address X, 10/10/2010";
 var lineParser = new LineParser<Order>();
@@ -218,7 +218,7 @@ As also noted earlier, for positional/fixed-width parsing to work, you must decl
 
 The `PositionalValuesFileParser` class differs from the `DelimiterSeparatedValuesFileParser` class in the actual fields splitter object used internally: `PositionalValuesFileParser` uses `PositionalValuesFieldsSplitter` and `DelimiterSeparatedValuesFileParser` uses `DelimiterSeparatedValuesFieldsSplitter`.
 
-For the sake of clarity, let's see an example of the positional/fixed-width layout at the line level using the `LineParser` and `PositionalValuesFieldsSplitter` classes.
+For the sake of clarity, let's see an example, at the line level, of the positional/fixed-width layout using the `LineParser` and `PositionalValuesFieldsSplitter` classes.
 
 ####Example IV
 Let's suppose we have positional/fixed-width values that intent to represent, say, an Order:
@@ -242,7 +242,7 @@ class Order
   public DateTime DeliveryDate { get; set; }
 }
 ```
-With those in place, the IllyumL2T `LineParser` class allows to read the field values and store them an Order instance like this:
+With those in place, the IllyumL2T `LineParser` class allows to read the field values and store them into an Order instance like this:
 ```
 var line = "   10248     1.10     Address X10/10/2010";
 var lineParser = new LineParser<Order>(new PositionalValuesFieldsSplitter<Order>());
