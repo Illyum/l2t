@@ -217,6 +217,7 @@ The `PositionalValuesFileParser` `Read` method, of course, does not need a `deli
 As also noted earlier, for positional/fixed-width parsing to work, you must declare the expected length of each value by means of the `Length` property of the `IllyumL2T.Core.ParseBehavior` attribute.
 
 The `PositionalValuesFileParser` class differs from the `DelimiterSeparatedValuesFileParser` class in the actual fields splitter object used internally: `PositionalValuesFileParser` uses `PositionalValuesFieldsSplitter` and `DelimiterSeparatedValuesFileParser` uses `DelimiterSeparatedValuesFieldsSplitter`.
+
 For the sake of clarity, let's see an example of the positional/fixed-width layout at the line level using the `LineParser` and `PositionalValuesFieldsSplitter` classes.
 
 ####Example IV
