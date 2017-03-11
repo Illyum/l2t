@@ -17,7 +17,7 @@ First, create a class to represent every field expected to be read from the line
 ```
 10248, 1.10, Address X, 10/10/2010
 ```
-Let's assume that the fields are for order id (1), freight (1.10), ship address (Address X), and delivery date (10/10/2010). A possible .NET class to represent the Order could be:
+Let's assume that the fields are for order id (10248), freight (1.10), ship address (Address X), and delivery date (10/10/2010). A possible .NET class to represent the Order could be:
 ```
 class Order
 {
@@ -99,7 +99,7 @@ var lineParser = new LineParser<Person>();
 var parseResult = lineParser.Parse(line);
 var person = parseResult.Instance;
 
-Debug.Assert(person.Email == "franl@ilyum.com");
+Debug.Assert(person.Email == "franl@illyum.com");
 Debug.Assert(person.Salary == 123.45m);
 ```
 The ParseBehavior Pattern is a regular expression pattern. CultureName, NumberStyle, and DateTimeStyle properties use the .NET support for Globalization and it is extensively documented in MSDN. Finally, the DateTimeFormat property serves for the exact same purpose documented in DateTime.ParseExact or DateTime.TryParseExact. Take in mind that this property works in conjunction with CultureName and DateTimeStyle for DateTime values parsing.
@@ -199,6 +199,57 @@ using(var reader = new StreamReader(filePath))
                         .Select(parseResult => new { line = parseResult.Line, errors = parseResult.Errors.Count() });
 }
 ```
+
+###PositionalValuesFileParser
+IllyumL2T provides the `PositionalValuesFileParser` class when the lines are to be read from a text file and the layout of the values in those lines is positional/fixed-width. The following code shows an example of how to use it:
+```
+var filePath = "Shipments.csv";
+using(var reader = new StreamReader(filePath))
+{
+  var fileParser = new PositionalValuesFileParser<Order>();
+  var parseResults = fileParser.Read(reader, includeHeaders: false);
+  
+  ...
+}
+```
+The `PositionalValuesFileParser` `Read` method, of course, does not need a `delimiter` parameter and returns an `IEnumerable<ParseResult<T>>` (in this case, `IEnumerable<ParseResult<Order>`); every line and field successfully parsed (or the condition error if not) can be found out through the corresponding `ParseResult` as described earlier.
+
+As also noted earlier, for positional/fixed-width parsing to work, you must declare the expected length of each value by means of the `Length` property of the `IllyumL2T.Core.ParseBehavior` attribute.
+
+The `PositionalValuesFileParser` class differs from the `DelimiterSeparatedValuesFileParser` class in the actual fields splitter object used internally: `PositionalValuesFileParser` uses `PositionalValuesFieldsSplitter` and `DelimiterSeparatedValuesFileParser` uses `DelimiterSeparatedValuesFieldsSplitter`.
+For the sake of clarity, let's see an example of the positional/fixed-width layout at the line level using the `LineParser` and `PositionalValuesFieldsSplitter` classes.
+
+####Example IV
+Let's suppose we have positional/fixed-width values that intent to represent, say, an Order:
+```
+   10248     1.10     Address X10/10/2010
+```
+Let's assume that the fields are for order id (10248), freight (1.10), ship address (Address X), and delivery date (10/10/2010). A possible .NET class to represent the Order could be:
+```
+class Order
+{
+  [IllyumL2T.Core.ParseBehavior(Length = 8)]
+  public short OrderId { get; set; }
+
+  [IllyumL2T.Core.ParseBehavior(Length = 9, NumberStyle = NumberStyles.AllowDecimalPoint)]
+  public decimal Freight { get; set; }
+
+  [IllyumL2T.Core.ParseBehavior(Length = 14)]
+  public string ShipAddress { get; set; }
+
+  [IllyumL2T.Core.ParseBehavior(Length = 10, DateTimeFormat = "d/M/yyyy")]
+  public DateTime DeliveryDate { get; set; }
+}
+```
+With those in place, the IllyumL2T `LineParser` class allows to read the field values and store them an Order instance like this:
+```
+var line = "   10248     1.10     Address X10/10/2010";
+var lineParser = new LineParser<Order>(new PositionalValuesFieldsSplitter<Order>());
+var parseResult = lineParser.Parse(line);
+var order = parseResult.Instance;
+```
+
+###Be aware
 It is important to note that IllyumL2T is a utility for parsing text files, lines, and fields and it is not meant to do efficient queries, sorts, or any of the set-oriented processing that can be accomplished through other technologies and tools; the larger the file, the slower the performance. Reserve yourself some minutes to give IllyumL2T a try with your own files and let us know how it went.
 
 Finally, take a look at the Unit Tests. It reveals more details on how to use IllyumL2T.
