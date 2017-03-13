@@ -251,10 +251,12 @@ var order = parseResult.Instance;
 ```
 
 ###FileParseBehavior attribute
-An empty or a whitespace-only text line is considered a blank line. The `FileParseBehavior` attribute can be used to control how blank lines affect the parsing process. The `FileParseBehavior` is a class-level attribute and is applied to the target class. This attribute contains the `BlankLineMode` property with the next possible values:
+An empty or a whitespace-only text line is considered a blank line. The `FileParseBehavior` attribute can be used to control how blank lines affect the parsing process. `FileParseBehavior` is a class-level attribute and is applied to the target class. This attribute contains the `BlankLineMode` property with the next possible values:
 
   `Stop` = The default for backward compatibility. The file parsing process stops at the first empty or whitespace line.
+
   `Skip` = The file parsing process does not stop at an empty or whitespace line, it does skip such a line, instead.
+
   `Nulled` = The file parsing process does not stop at an empty or whitespace line, it does return an null instance, instead.
 
 The parsing process for the following target class, for example, skips blank lines:
