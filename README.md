@@ -259,7 +259,7 @@ An empty or a whitespace-only text line is considered a blank line. The `FilePar
 
   `Nulled` = The file parsing process does not stop at an empty or whitespace line, it does return an null instance, instead.
 
-For example, the parsing process skips blank lines for the following target class:
+For example, the file parsing process skips blank lines for the following target class:
 ```
   [IllyumL2T.Core.FileParseBehavior(BlankLineMode = BlankLineMode.Skip)]
   class Shipment
