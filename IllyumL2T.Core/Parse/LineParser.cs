@@ -46,13 +46,13 @@ namespace IllyumL2T.Core.Parse
       // Get the values to parse and set into the instance
       //
       var values = _fieldsSplitter.Split(line);
-      for(int i = 0; i < values.Count(); ++i)
+      for (int i = 0; i < values.Count(); ++i)
       {
         var fieldProcessor = _fieldsSplitter.FieldParsers[i];
         var property = parseResult.Instance.GetType().GetProperty(fieldProcessor.FieldName);
         var propertyValue = fieldProcessor.Parse(values[i]);
 
-        if(propertyValue != null)
+        if (propertyValue != null)
         {
           property.SetValue(parseResult.Instance, propertyValue, null);
         }

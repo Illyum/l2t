@@ -14,7 +14,7 @@ namespace IllyumL2T.Core.FieldsSplit
     {
       var typeProperties = typeof(T).GetProperties();
       FieldParsers = new IFieldParser[typeProperties.Length]; //IFieldParser maybe should be renamed to IPropertyParser, as only .NET Properties are supported, not .NET Fields.
-      for(int i = 0; i < typeProperties.Length; i++)
+      for (int i = 0; i < typeProperties.Length; ++i)
       {
         FieldParsers[i] = new FieldParser(typeProperties[i]);
       }

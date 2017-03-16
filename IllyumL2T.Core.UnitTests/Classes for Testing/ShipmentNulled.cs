@@ -3,7 +3,8 @@ using System.Globalization;
 
 namespace IllyumL2T.Core.FieldsSplit.UnitTests
 {
-  class Order
+  [IllyumL2T.Core.FileParseBehavior(BlankLineMode = BlankLineMode.Nulled)]
+  class ShipmentNulled
   {
     public short OrderId { get; set; }
 
@@ -17,9 +18,9 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
 
     public override bool Equals(object other)
     {
-      if(other is Order)
+      if (other is ShipmentNulled)
       {
-        return ((Order) other).GetHashCode() == this.GetHashCode();
+        return ((ShipmentNulled)other).GetHashCode() == this.GetHashCode();
       }
 
       return false;

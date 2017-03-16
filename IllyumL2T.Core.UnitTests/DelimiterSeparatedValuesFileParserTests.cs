@@ -16,6 +16,9 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
   public class DelimiterSeparatedValuesFileParserTests
   {
     static IEnumerable<Order> _orders;
+    static IEnumerable<ShipmentNulled> _ordersWithNullInstances;
+    static IEnumerable<Shipment> _ordersAsShipments;
+    static IEnumerable<ShipmentSkipBlanks> _ordersAsShipments2;
 
     [ClassInitialize]
     public static void InitializeClass(TestContext context)
@@ -27,7 +30,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
                           .Select(counter => new Order()
                           {
                             OrderId = (short) counter,
-                            Freight = 1.1m,
+                            Freight = 1.1M,
                             ShipAddress = shipAddress,
                             DeliveryDate = dateTime
                           });
@@ -52,6 +55,36 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
         writer.WriteLine("10000, (89), ShipNowhere, InvalidDate"); // 2 parsing errors
         writer.WriteLine("A100A, ####, ShipNowhere, 99/99/9999");  // 3 parsing errors
       }
+
+      var ordersWithBlankLinesFilePath = Path.Combine(context.DeploymentDirectory, "OrdersWithBlankLines.csv");
+      using (var writer = new StreamWriter(ordersWithBlankLinesFilePath))
+      {
+        _ordersWithNullInstances = _orders.Aggregate(new List<ShipmentNulled>(), (whole, next) =>
+         {
+           writer.WriteLine("{0}, {1:#0.00}, {2}, {3:dd/MM/yyyy}",
+               next.OrderId,
+               next.Freight,
+               next.ShipAddress,
+               next.DeliveryDate);
+           whole.Add(new ShipmentNulled { OrderId = next.OrderId, Freight = next.Freight, ShipAddress = next.ShipAddress, DeliveryDate = next.DeliveryDate });
+
+           writer.WriteLine("");
+           whole.Add(null);
+
+           return whole;
+         });
+      }
+      _ordersAsShipments = _ordersWithNullInstances.TakeWhile(order => order != null).Aggregate(new List<Shipment>(), (whole, next) =>
+      {
+        whole.Add(new Shipment { OrderId = next.OrderId, Freight = next.Freight, ShipAddress = next.ShipAddress, DeliveryDate = next.DeliveryDate });
+        return whole;
+      });
+
+      _ordersAsShipments2 = _ordersWithNullInstances.Where(order => order != null).Aggregate(new List<ShipmentSkipBlanks>(), (whole, next) =>
+      {
+        whole.Add(new ShipmentSkipBlanks { OrderId = next.OrderId, Freight = next.Freight, ShipAddress = next.ShipAddress, DeliveryDate = next.DeliveryDate });
+        return whole;
+      });
     }
 
     public TestContext TestContext { get; set; }
@@ -108,6 +141,57 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
         // And there must be eight errors in the fields being parsed
         var expectedErrorsInFields = 8;
         Assert.AreEqual<int>(expectedErrorsInFields, actualFieldsWithError);
+      }
+    }
+
+    [TestMethod]
+    public void DefaultParseFileWithBlankLinesTest()
+    {
+      // Arrange
+      var ordersFilePath = Path.Combine(TestContext.DeploymentDirectory, "OrdersWithBlankLines.csv");
+      using (var reader = new StreamReader(ordersFilePath))
+      {
+        var fileParser = new DelimiterSeparatedValuesFileParser<Shipment>();
+
+        // Act
+        var parseResults = fileParser.Read(reader, delimiter: ',', includeHeaders: false);
+
+        // Assert
+        Assert.IsTrue(_ordersAsShipments.SequenceEqual(parseResults.Select(parseResult => parseResult.Instance)));
+      }
+    }
+
+    [TestMethod]
+    public void NulledParseFileWithBlankLinesTest()
+    {
+      // Arrange
+      var ordersFilePath = Path.Combine(TestContext.DeploymentDirectory, "OrdersWithBlankLines.csv");
+      using (var reader = new StreamReader(ordersFilePath))
+      {
+        var fileParser = new DelimiterSeparatedValuesFileParser<ShipmentNulled>();
+
+        // Act
+        var parseResults = fileParser.Read(reader, delimiter: ',', includeHeaders: false);
+
+        // Assert
+        Assert.IsTrue(_ordersWithNullInstances.SequenceEqual(parseResults.Select(parseResult => parseResult.Instance)));
+      }
+    }
+
+    [TestMethod]
+    public void SkipParseFileWithBlankLinesTest()
+    {
+      // Arrange
+      var ordersFilePath = Path.Combine(TestContext.DeploymentDirectory, "OrdersWithBlankLines.csv");
+      using (var reader = new StreamReader(ordersFilePath))
+      {
+        var fileParser = new DelimiterSeparatedValuesFileParser<ShipmentSkipBlanks>();
+
+        // Act
+        var parseResults = fileParser.Read(reader, delimiter: ',', includeHeaders: false);
+
+        // Assert
+        Assert.IsTrue(_ordersAsShipments2.SequenceEqual(parseResults.Select(parseResult => parseResult.Instance)));
       }
     }
   }
