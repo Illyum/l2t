@@ -108,6 +108,18 @@ namespace IllyumL2T.Core.Parse
       return null;
     }
 
+    public void Write(System.IO.TextWriter writer, object value)
+    {
+      if (FieldType == typeof(DateTime) && string.IsNullOrWhiteSpace(ParseBehavior.DateTimeFormat) == false)
+      {
+        var when = Convert.ToDateTime(value);
+        writer.Write($"{when.ToString(ParseBehavior.DateTimeFormat)}");
+      }
+      else
+      {
+        writer.Write($"{value}");
+      }
+    }
     #endregion
   }
 }

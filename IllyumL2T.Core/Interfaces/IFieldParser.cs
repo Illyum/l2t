@@ -20,5 +20,6 @@ namespace IllyumL2T.Core.Interfaces
     IEnumerable<string> Errors { get; }
 
     object Parse(string input);
+    void Write(System.IO.TextWriter writer, object value);
   }
 }

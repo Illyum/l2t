@@ -71,6 +71,33 @@ namespace IllyumL2T.Core.Parse
       return parseResult;
     }
 
+    public void Write(System.IO.TextWriter writer, T instance)
+    {
+      if (instance == null)
+      {
+        return;
+      }
+
+      var fields = _fieldsSplitter as DelimiterSeparatedValuesFieldsSplitter<T>;
+      if (fields == null)
+      {
+        throw new NotSupportedException($"Only {nameof(DelimiterSeparatedValuesFieldsSplitter<T>)} supported, so far.");
+      }
+
+      Type targetType = instance.GetType();
+      for (int k = 0; k < fields.FieldParsers.Length; ++k)
+      {
+        var fieldProcessor = fields.FieldParsers[k];
+        var property = targetType.GetProperty(fieldProcessor.FieldName);
+        object value = property.GetValue(instance);
+        if (k > 0)
+        {
+          writer.Write($"{fields.Delimiter}");
+        }
+        fieldProcessor.Write(writer, value);
+      }
+    }
+
     #endregion
   }
 }
