@@ -4,7 +4,6 @@ using System.Linq;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using IllyumL2T.Core.FieldsSplit;
 using IllyumL2T.Core.Parse;
 
 namespace IllyumL2T.Core.FieldsSplit.UnitTests

@@ -11,9 +11,11 @@ namespace IllyumL2T.Core.FieldsSplit
   public class DelimiterSeparatedValuesFieldsSplitter<T> : FieldsSplitterBase<T> where T : class, new()
   {
     public string Pattern { get; private set; }
+    public char Delimiter { get; private set; }
 
     public DelimiterSeparatedValuesFieldsSplitter(char delimiter)
     {
+      Delimiter = delimiter;
       Pattern = GetRegexPatternToSplitFields(delimiter);
     }
 
@@ -31,7 +33,7 @@ namespace IllyumL2T.Core.FieldsSplit
       return values.Select(v => v.Trim('"', ' ')).ToArray();
     }
 
-    string GetRegexPatternToSplitFields(char delimiter)
+    private string GetRegexPatternToSplitFields(char delimiter)
     {
       var pattern = ConfigurationManager.AppSettings["SplitByDelimiterRegexPattern"];
 
