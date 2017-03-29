@@ -9,6 +9,7 @@ using Moq;
 
 using IllyumL2T.Core.FieldsSplit;
 using IllyumL2T.Core.Parse;
+using System.Diagnostics;
 
 namespace IllyumL2T.Core.FieldsSplit.UnitTests
 {
@@ -103,6 +104,52 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
 
         // Assert
         Assert.IsTrue(_orders.SequenceEqual(parseResults.Select(parseResult => parseResult.Instance)));
+      }
+    }
+
+    class Observer<T> : IObserver<T>
+    {
+      private List<T> observations;
+
+      public Observer()
+      {
+        observations = new List<T>();
+      }
+
+      public IEnumerable<T> Observations { get { return observations; } }
+
+      public void OnCompleted()
+      {
+        Trace.WriteLine($"{nameof(OnCompleted)}");
+      }
+
+      public void OnError(Exception error)
+      {
+        Trace.WriteLine($"{nameof(OnError)}");
+      }
+
+      public void OnNext(T value)
+      {
+        observations.Add(value);
+      }
+    }
+
+    [TestMethod]
+    public void ParseFileTestRx()
+    {
+      // Arrange
+      var ordersFilePath = Path.Combine(TestContext.DeploymentDirectory, "Orders.csv");
+      using (var reader = new StreamReader(ordersFilePath))
+      {
+        var fileParser = new DelimiterSeparatedValuesFileParser<Order>();
+        var observer1 = new Observer<ParseResult<Order>>();
+
+        // Act
+        var parseResults = fileParser.ReadObservable(reader, delimiter: ',', includeHeaders: false);
+        parseResults.Subscribe(observer1);
+
+        // Assert
+        Assert.IsTrue(_orders.SequenceEqual(observer1.Observations.Select(parseResult => parseResult.Instance)));
       }
     }
 

@@ -2,6 +2,7 @@
 using System.Linq;
 using System.IO;
 using System.Collections.Generic;
+using System.Reactive.Linq;
 
 using IllyumL2T.Core.Interfaces;
 using IllyumL2T.Core.FieldsSplit;
@@ -89,5 +90,7 @@ namespace IllyumL2T.Core.Parse
     }
 
     public abstract FieldsSplitterBase<T> CreateValuesFieldsSplitter(char? delimiter = null);
+
+    public IObservable<ParseResult<T>> ReadObservable(TextReader reader, char delimiter, bool includeHeaders) => Read(reader, delimiter, includeHeaders).ToObservable();
   }
 }
