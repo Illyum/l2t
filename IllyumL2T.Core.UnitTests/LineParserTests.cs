@@ -103,6 +103,43 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
     }
 
     [TestMethod]
+    public void inheritance()
+    {
+      var typeProperties = typeof(SimpleOrder).GetProperties();
+      Assert.AreEqual<int>(4, typeProperties.Length);
+      var attrs = typeProperties[0].GetCustomAttributes(false);
+      Assert.AreEqual<int>(1, attrs.Length);
+      attrs = typeProperties[1].GetCustomAttributes(false);
+      Assert.AreEqual<int>(1, attrs.Length);
+      attrs = typeProperties[2].GetCustomAttributes(false);
+      Assert.AreEqual<int>(1, attrs.Length);
+      attrs = typeProperties[3].GetCustomAttributes(false);
+      Assert.AreEqual<int>(1, attrs.Length);
+    }
+    [TestMethod]
+    public void LineParsePositionalTest_Fragment1()
+    {
+      // Arrange
+      string address = "jane@domain.com";
+      var line = $" 1234   3.1416{address,-50}25/12/2007";
+      var expected = new SimpleOrderBase()
+      {
+        OrderId = 1234,
+        Freight = 3.1416m
+      };
+
+      // Act
+      var lineParser = new LineParser<SimpleOrderBase>(new PositionalValuesFieldsSplitter<SimpleOrderBase>());
+      var parseResult = lineParser.Parse(line);
+
+      // Assert
+      Assert.IsNull(parseResult.Errors);
+      var actual = parseResult.Instance;
+      Assert.IsNotNull(actual);
+      Assert.AreEqual<SimpleOrderBase>(expected, actual);
+    }
+
+    [TestMethod]
     public void ShortLineParsePositionalTest()
     {
       // Arrange
