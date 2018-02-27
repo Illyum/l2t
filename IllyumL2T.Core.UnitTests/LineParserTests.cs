@@ -133,8 +133,10 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
       var line = $" 1234   3.1416{address,-50}25/12/2007";
       var expected = new SimpleOrderBase()
       {
-        OrderId = 1234,
-        Freight = 3.1416m
+        //OrderId = 1234,
+        //Freight = 3.1416m
+        ShipAddress = address,
+        DeliveryDate = new DateTime(2007, 12, 25)
       };
 
       // Act
