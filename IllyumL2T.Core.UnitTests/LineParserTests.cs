@@ -87,9 +87,10 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
       var parseResult = lineParser.Parse(line);
 
       // Assert
-      Assert.IsNull(parseResult.Errors, $"{parseResult.Errors.Aggregate(new System.Text.StringBuilder(), (w, n) => w.AppendFormat("{0} |", n))}");
+      Assert.IsNull(parseResult.Errors);
+      //Assert.IsNull(parseResult.Errors, parseResult.Errors.Aggregate(new System.Text.StringBuilder(), (w, n) => w.AppendFormat("{0} |", n)).ToString());
 
-      var actual = parseResult.Instance;
+        var actual = parseResult.Instance;
       Assert.IsNotNull(actual);
       var expected = new SimpleOrder()
       {
@@ -104,27 +105,19 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
 
     class B { public int A { get; set; } public string b { get; set; } }
     class A : B { public int C { get; set; } public int D { get; set; } }
-    [TestMethod]
-    public void inheritance0()
+    [TestMethod, Description("Case experiment")]
+    public void layout_order_of_inherited_properties()
     {
+      // Arrange
       var typeProperties = typeof(A).GetProperties();
-      var list = $"{typeProperties.Aggregate(new System.Text.StringBuilder(),(w,n)=>w.AppendFormat("{0} |",n))}";
-      Assert.AreEqual<string>("", list);
+
+      // Act
+      var list = $"{typeProperties.Aggregate(new System.Text.StringBuilder(),(w,n)=>w.AppendFormat("{0}|",n.Name))}";
+
+      // Assert
+      Assert.AreEqual<string>("C|D|A|b|", list);
     }
-    [TestMethod]
-    public void inheritance()
-    {
-      var typeProperties = typeof(SimpleOrder).GetProperties();
-      Assert.AreEqual<int>(4, typeProperties.Length);
-      var attrs = typeProperties[0].GetCustomAttributes(false);
-      Assert.AreEqual<int>(1, attrs.Length);
-      attrs = typeProperties[1].GetCustomAttributes(false);
-      Assert.AreEqual<int>(1, attrs.Length);
-      attrs = typeProperties[2].GetCustomAttributes(false);
-      Assert.AreEqual<int>(1, attrs.Length);
-      attrs = typeProperties[3].GetCustomAttributes(false);
-      Assert.AreEqual<int>(1, attrs.Length);
-    }
+
     [TestMethod]
     public void LineParsePositionalTest_Fragment1()
     {
