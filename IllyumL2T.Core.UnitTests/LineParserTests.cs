@@ -124,23 +124,24 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
       // Arrange
       string address = "jane@domain.com";
       var line = $" 1234   3.1416{address,-50}25/12/2007";
-      var expected = new SimpleOrderBase()
+      var expected = new MessageXHead()
       {
-        //OrderId = 1234,
-        //Freight = 3.1416m
-        ShipAddress = address,
-        DeliveryDate = new DateTime(2007, 12, 25)
+        OrderId = 1234,
+        Freight = 3.1416m
+        //ShipAddress = address,
+        //DeliveryDate = new DateTime(2007, 12, 25)
       };
 
       // Act
-      var lineParser = new LineParser<SimpleOrderBase>(new PositionalValuesFieldsSplitter<SimpleOrderBase>());
+      var lineParser = new LineParser<MessageX>(new PositionalValuesFieldsSplitter<MessageX>());
       var parseResult = lineParser.Parse(line);
 
       // Assert
-      Assert.IsNull(parseResult.Errors);
+      //Assert.IsNull(parseResult.Errors);
+      Assert.IsNull(parseResult.Errors, $"{parseResult.Errors.Aggregate(new System.Text.StringBuilder(), (w, n) => w.AppendFormat("{0} |", n))}");
       var actual = parseResult.Instance;
       Assert.IsNotNull(actual);
-      Assert.AreEqual<SimpleOrderBase>(expected, actual);
+      Assert.AreEqual<MessageX>(expected, actual);
     }
 
     [TestMethod]
