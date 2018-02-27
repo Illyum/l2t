@@ -28,7 +28,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
       Assert.AreEqual<int>(expected, actual);
 
       // ...and there has to be one single field for every property in ClassForTesting...
-      foreach(var field in lineParser.FieldParsers)
+      foreach (var field in lineParser.FieldParsers)
       {
         Assert.IsNotNull(properties.Single(p => p.Name.Equals(field.FieldName)));
       }
@@ -87,7 +87,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
       var parseResult = lineParser.Parse(line);
 
       // Assert
-      Assert.IsNull(parseResult.Errors);
+      Assert.IsNull(parseResult.Errors, $"{parseResult.Errors.Aggregate(new System.Text.StringBuilder(), (w, n) => w.AppendFormat("{0} |", n))}");
 
       var actual = parseResult.Instance;
       Assert.IsNotNull(actual);
@@ -102,6 +102,15 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
       Assert.AreEqual<SimpleOrder>(expected, actual);
     }
 
+    class B { public int A { get; set; } public string b { get; set; } }
+    class A : B { public int C { get; set; } public int D { get; set; } }
+    [TestMethod]
+    public void inheritance0()
+    {
+      var typeProperties = typeof(A).GetProperties();
+      var list = $"{typeProperties.Aggregate(new System.Text.StringBuilder(),(w,n)=>w.AppendFormat("{0} |",n))}";
+      Assert.AreEqual<string>("", list);
+    }
     [TestMethod]
     public void inheritance()
     {
