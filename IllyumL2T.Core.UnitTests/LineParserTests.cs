@@ -124,24 +124,35 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
       // Arrange
       string address = "jane@domain.com";
       var line = $" 1234   3.1416{address,-50}25/12/2007";
-      var expected = new MessageXHead()
+      var expected_head = new MessageXHead()
       {
         OrderId = 1234,
         Freight = 3.1416m
-        //ShipAddress = address,
-        //DeliveryDate = new DateTime(2007, 12, 25)
+      };
+      var expected_record = new MessageX()
+      {
+        OrderId = 1234,
+        Freight = 3.1416m,
+        ShipAddress = address,
+        DeliveryDate = new DateTime(2007, 12, 25)
       };
 
       // Act
+      var headlineParser = new LineParser<MessageXHead>(new PositionalValuesFieldsSplitter<MessageXHead>());
+      var headparseResult = headlineParser.Parse(line);
       var lineParser = new LineParser<MessageX>(new PositionalValuesFieldsSplitter<MessageX>());
       var parseResult = lineParser.Parse(line);
 
       // Assert
-      //Assert.IsNull(parseResult.Errors);
-      Assert.IsNull(parseResult.Errors, $"{parseResult.Errors.Aggregate(new System.Text.StringBuilder(), (w, n) => w.AppendFormat("{0} |", n))}");
-      var actual = parseResult.Instance;
-      Assert.IsNotNull(actual);
-      Assert.AreEqual<MessageX>(expected, actual);
+      Assert.IsNull(headparseResult.Errors);
+      var actual_head = headparseResult.Instance;
+      Assert.IsNotNull(actual_head);
+      Assert.AreEqual<MessageXHead>(expected_head, actual_head);
+
+      Assert.IsNull(parseResult.Errors);
+      var actual_record = parseResult.Instance;
+      Assert.IsNotNull(actual_record);
+      Assert.AreEqual<MessageX>(expected_record, actual_record);
     }
 
     [TestMethod]

@@ -47,6 +47,12 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
 
   class MessageX
   {
+    [IllyumL2T.Core.ParseBehavior(Length = 5)]
+    public short OrderId { get; set; }
+
+    [IllyumL2T.Core.ParseBehavior(Length = 9, NumberStyle = NumberStyles.AllowDecimalPoint)]
+    public decimal Freight { get; set; }
+
     [IllyumL2T.Core.ParseBehavior(Length = 50)]
     public string ShipAddress { get; set; }
 
@@ -66,6 +72,8 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
     public override int GetHashCode()
     {
       int result =
+        OrderId.GetHashCode() +
+        Freight.GetHashCode() +
         DeliveryDate.GetHashCode();
       if (ShipAddress != null)
       {
@@ -74,19 +82,13 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
       return result;
     }
   }
-  class MessageXHead : MessageX
+  class MessageXHead
   {
     [IllyumL2T.Core.ParseBehavior(Length = 5)]
     public short OrderId { get; set; }
 
     [IllyumL2T.Core.ParseBehavior(Length = 9, NumberStyle = NumberStyles.AllowDecimalPoint)]
     public decimal Freight { get; set; }
-
-    //[IllyumL2T.Core.ParseBehavior(Length = 50)]
-    //public string ShipAddress { get; set; }
-
-    //[IllyumL2T.Core.ParseBehavior(Length = 10, DateTimeFormat = "d/M/yyyy")]
-    //public DateTime DeliveryDate { get; set; }
 
     public override bool Equals(object other)
     {
@@ -101,7 +103,6 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
     public override int GetHashCode()
     {
       int result =
-        base.GetHashCode() +
         OrderId.GetHashCode() +
         Freight.GetHashCode();
       return result;
