@@ -16,7 +16,6 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
     [ClassInitialize]
     public static void InitializeClass(TestContext context)
     {
-      //var shipAddress = $"{("Address A"),-50}";
       var shipAddress = "Address A";
       var dateTime = new DateTime(2010, 10, 10);
 
