@@ -19,7 +19,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
     static IEnumerable<ShipmentNulled> _ordersWithNullInstances;
     static IEnumerable<Shipment> _ordersAsShipments;
     static IEnumerable<ShipmentSkipBlanks> _ordersAsShipments2;
-    static IEnumerable<AssociativeArrayEntry> _map;
+    static IEnumerable<NameMap> _map;
 
     [ClassInitialize]
     public static void InitializeClass(TestContext context)
@@ -87,7 +87,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
         return whole;
       });
 
-      _map = Enumerable.Range(1, 5).Select(counter => new AssociativeArrayEntry() { Id = (short)counter, Name = $"Name_{counter}" });
+      _map = Enumerable.Range(1, 5).Select(counter => new NameMap() { Id = (short)counter, Name = $"Name_{counter}" });
       var mapFilePath = Path.Combine(context.DeploymentDirectory, "Map.csv");
       using (var writer = new StreamWriter(mapFilePath))
       {
@@ -213,14 +213,15 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
       var mapFilePath = Path.Combine(TestContext.DeploymentDirectory, "Map.csv");
       using (var reader = new StreamReader(mapFilePath))
       {
-        var fileParser = new DelimiterSeparatedValuesFileParser<AssociativeArrayEntry>();
+        var fileParser = new DelimiterSeparatedValuesFileParser<NameMap>();
 
         // Act
         var parseResults = fileParser.Read(reader, delimiter: ',', includeHeaders: false);
-        var dictionary = parseResults.Aggregate(new Dictionary<short, string>(), (whole, next) => { whole[next.Instance.Id] = next.Instance.Name; return whole; });
+        var dictionary = parseResults.Select(result => result.Instance).ToDictionary(name => name.Id);
 
         // Assert
-        Assert.AreEqual("(1,Name_1)(2,Name_2)(3,Name_3)(4,Name_4)(5,Name_5)", $"{dictionary.Aggregate(new System.Text.StringBuilder(),(w,n)=>w.AppendFormat("({0},{1})",n.Key,n.Value))}");
+        Assert.AreEqual("(1,Name_1)(2,Name_2)(3,Name_3)(4,Name_4)(5,Name_5)", $"{dictionary.Aggregate(new System.Text.StringBuilder(), (w, n) => w.AppendFormat("({0},{1})", n.Key, n.Value.Name))}");
+        Assert.IsTrue(_map.SequenceEqual(dictionary.Values));
       }
     }
   }

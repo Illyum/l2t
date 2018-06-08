@@ -1,15 +1,17 @@
-﻿namespace IllyumL2T.Core.FieldsSplit.UnitTests
+﻿using System.Collections.Generic;
+
+namespace IllyumL2T.Core.FieldsSplit.UnitTests
 {
-  class AssociativeArrayEntry
+  class NameMap
   {
     public short Id { get; set; }
     public string Name { get; set; }
 
     public override bool Equals(object other)
     {
-      if (other is AssociativeArrayEntry)
+      if (other is NameMap)
       {
-        return ((AssociativeArrayEntry)other).GetHashCode() == this.GetHashCode();
+        return ((NameMap)other).GetHashCode() == this.GetHashCode();
       }
 
       return false;

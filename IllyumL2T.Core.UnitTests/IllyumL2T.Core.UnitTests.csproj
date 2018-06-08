@@ -55,7 +55,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="Classes for Testing\AssociativeArrayEntry.cs" />
+    <Compile Include="Classes for Testing\NameMap.cs" />
     <Compile Include="Classes for Testing\BadRecords.cs" />
     <Compile Include="Classes for Testing\Foo.cs" />
     <Compile Include="Classes for Testing\Shipment.cs" />
