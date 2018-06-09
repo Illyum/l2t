@@ -9,6 +9,7 @@ using Moq;
 
 using IllyumL2T.Core.FieldsSplit;
 using IllyumL2T.Core.Parse;
+using System.Text;
 
 namespace IllyumL2T.Core.FieldsSplit.UnitTests
 {
@@ -211,6 +212,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
     {
       // Arrange
       var mapFilePath = Path.Combine(TestContext.DeploymentDirectory, "Map.csv");
+      var expectedFlatContent = $"{_map.Aggregate(new StringBuilder(), (w, n) => w.AppendFormat("({0},{1})", n.Id, n.Name))}";
       using (var reader = new StreamReader(mapFilePath))
       {
         var fileParser = new DelimiterSeparatedValuesFileParser<NameMap>();
@@ -218,10 +220,12 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
         // Act
         var parseResults = fileParser.Read(reader, delimiter: ',', includeHeaders: false);
         var dictionary = parseResults.Select(result => result.Instance).ToDictionary(name => name.Id);
+        var actualFlatContent = $"{dictionary.Aggregate(new StringBuilder(), (w, n) => w.AppendFormat("({0},{1})", n.Key, n.Value.Name))}";
 
         // Assert
-        Assert.AreEqual("(1,Name_1)(2,Name_2)(3,Name_3)(4,Name_4)(5,Name_5)", $"{dictionary.Aggregate(new System.Text.StringBuilder(), (w, n) => w.AppendFormat("({0},{1})", n.Key, n.Value.Name))}");
+        Assert.AreEqual(_map.Count(), dictionary.Count);
         Assert.IsTrue(_map.SequenceEqual(dictionary.Values));
+        Assert.AreEqual(expectedFlatContent, actualFlatContent);
       }
     }
   }
