@@ -12,6 +12,8 @@ namespace IllyumL2T.Core
 
     public string DateTimeFormat { get; set; }
 
+    public string DateTimeOffsetFormat { get; set; }
+
     public DateTimeStyles DateTimeStyle { get; set; }
 
     public NumberStyles NumberStyle { get; set; }

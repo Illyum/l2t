@@ -159,6 +159,23 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
     }
 
     [TestMethod]
+    public void ParseDateTimeOffsetTest()
+    {
+      // Arrange
+      var propertyName = "DateTimeOffsetProperty";
+      var propertyInfo = typeof(Bar).GetProperties().Single(p => p.Name == propertyName);
+
+      // Act
+      var fieldParser = new FieldParser(propertyInfo);
+      var actual = fieldParser.Parse("24/12/1900 +1:00");
+
+      // Assert
+      var expected = new DateTimeOffset(new DateTime(1900, 12, 24), new TimeSpan(1, 0, 0));
+      Assert.AreEqual(expected, actual);
+      Assert.IsFalse(fieldParser.Errors.Any());
+    }
+
+    [TestMethod]
     public void ParseByteTest()
     {
       // Arrange
