@@ -731,7 +731,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
     {
       // Arrange
       var propertyName = "BooleanProperty";
-      var propertyInfo = typeof(Bar).GetProperties().Single(p => p.Name == propertyName);
+      var propertyInfo = typeof(Baz).GetProperties().Single(p => p.Name == propertyName);
 
       // Act
       var fieldParser = new FieldParser(propertyInfo);
@@ -757,7 +757,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
     {
       // Arrange
       var propertyName = "BooleanProperty";
-      var propertyInfo = typeof(Bar).GetProperties().Single(p => p.Name == propertyName);
+      var propertyInfo = typeof(Baz).GetProperties().Single(p => p.Name == propertyName);
 
       // Act
       var fieldParser = new FieldParser(propertyInfo);
@@ -773,7 +773,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
     {
       // Arrange
       var propertyName = "NullableBooleanProperty";
-      var propertyInfo = typeof(Bar).GetProperties().Single(p => p.Name == propertyName);
+      var propertyInfo = typeof(Baz).GetProperties().Single(p => p.Name == propertyName);
 
       // Act
       var fieldParser = new FieldParser(propertyInfo);

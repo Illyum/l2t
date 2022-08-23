@@ -3,16 +3,16 @@ using System.Globalization;
 
 namespace IllyumL2T.Core.FieldsSplit.UnitTests
 {
-  class Bar
+  class Baz
   {
     public bool BooleanProperty { get; set; }
     public bool? NullableBooleanProperty { get; set; }
 
     public override bool Equals(object other)
     {
-      if(other is Bar)
+      if(other is Baz)
       {
-        return ((Bar) other).GetHashCode() == this.GetHashCode(); 
+        return ((Baz) other).GetHashCode() == this.GetHashCode(); 
       }
 
       return false;
