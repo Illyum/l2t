@@ -4,8 +4,6 @@ using System.Linq;
 using System.Configuration;
 using System.Text.RegularExpressions;
 
-using IllyumL2T.Core.Interfaces;
-
 namespace IllyumL2T.Core.FieldsSplit
 {
   public class DelimiterSeparatedValuesFieldsSplitter<T> : FieldsSplitterBase<T> where T : class, new()
@@ -24,7 +22,7 @@ namespace IllyumL2T.Core.FieldsSplit
 
       if(values.Count() != FieldParsers.Count())
       {
-        throw new InvalidOperationException("Values mismatch fields definition");
+        throw new InvalidOperationException($"Values mismatch fields definition ({values.Count()} values vs {FieldParsers.Count()} defined properties).");
       }
 
       // Remove leading and trailing spaces and quotes. A future version could make the characters set configurable
