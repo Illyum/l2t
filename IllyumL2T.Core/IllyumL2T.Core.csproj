@@ -5,6 +5,7 @@
     <Deterministic>true</Deterministic>
     <Version>3.0.0</Version>
     <LangVersion>latest</LangVersion>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>
