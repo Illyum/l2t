@@ -14,12 +14,13 @@ IllyumL2T consists of one single DLL: IllyumL2T.Core.dll. Although it might be a
 
 ### Scope
 The currently supported members in user-defined types are Properties only. Fields in user-defined types are not currently supported.
-The following .NET CLR types are currently supported for properties in user-defined types:
+
+The following .NET CLR types are currently supported for Properties in user-defined types:
 ```
 .NET CLR type                      C# data type
 -------------                      ------------
 System.String                      string
-System.Char                        char?
+System.Char                        char
 System.Boolean                     bool
 System.Byte                        byte
 System.Int16                       short
