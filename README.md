@@ -12,6 +12,39 @@ Please note that for positional/fixed-width parsing to work, you must declare th
 ### Installation
 IllyumL2T consists of one single DLL: IllyumL2T.Core.dll. Although it might be added to a Visual Studio project like any other assembly, we recommend to use NuGet and the associated well-known procedure.
 
+### Scope
+The currently supported members in user-defined types are Properties only. Fields in user-defined types are not currently supported.
+The following .NET CLR types are currently supported for properties in user-defined types:
+```
+.NET CLR type                      C# data type
+-------------                      ------------
+System.String                      string
+System.Char                        char?
+System.Boolean                     bool
+System.Byte                        byte
+System.Int16                       short
+System.Int32                       int
+System.Int64                       long
+System.Single                      float
+System.Double                      double
+System.Decimal                     decimal
+System.DateTime                    System.DateTime
+System.DateTimeOffset              System.DateTimeOffset
+System.UInt64                      ulong
+System.Nullable<Char>              char?
+System.Nullable<Boolean>           bool?
+System.Nullable<Byte>              byte?
+System.Nullable<Int16>             short?
+System.Nullable<Int32>             int?
+System.Nullable<Int64>             long?
+System.Nullable<Single>            float?
+System.Nullable<Double>            double?
+System.Nullable<Decimal>           decimal?
+System.Nullable<DateTime>          System.DateTime?
+System.Nullable<DateTimeOffset>    System.DateTimeOffset?
+System.Nullable<UInt64>            ulong?
+```
+
 ### How does it work?
 First, create a class to represent every field expected to be read from the line of text. For example, suppose we have comma-separated values that intent to represent, say, an Order:
 ```
@@ -34,7 +67,7 @@ var lineParser = new LineParser<Order>();
 var parseResult = lineParser.Parse(line);
 var order = parseResult.Instance;
 ```
-At this point, `order.OrderId` holds the integer value 10248, `order.Freight` holds the decimal value 1.10, `order.ShipAddress` holds the string value "Address X" and `order.DeliveryDate` holds the DateTime value October 10th 2010. Of course, any of the .NET CLR types can be used as needed and depending on the field values to be read.
+At this point, `order.OrderId` holds the integer value 10248, `order.Freight` holds the decimal value 1.10, `order.ShipAddress` holds the string value "Address X" and `order.DeliveryDate` holds the DateTime value October 10th 2010. Of course, only currently supported .NET CLR types can be used as needed (see Scope section) and depending on the field values to be read.
 
 An `InvalidOperationException` with message "Values mismatch fields definition" will be thrown if the number of values read doesn't match the number of properties.
 
