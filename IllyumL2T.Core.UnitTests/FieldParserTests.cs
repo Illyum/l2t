@@ -159,6 +159,23 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
     }
 
     [TestMethod]
+    public void ParseDateTimeOffsetTest()
+    {
+      // Arrange
+      var propertyName = "DateTimeOffsetProperty";
+      var propertyInfo = typeof(Bar).GetProperties().Single(p => p.Name == propertyName);
+
+      // Act
+      var fieldParser = new FieldParser(propertyInfo);
+      var actual = fieldParser.Parse("24/12/1900 +1:00");
+
+      // Assert
+      var expected = new DateTimeOffset(new DateTime(1900, 12, 24), new TimeSpan(1, 0, 0));
+      Assert.AreEqual(expected, actual);
+      Assert.IsFalse(fieldParser.Errors.Any());
+    }
+
+    [TestMethod]
     public void ParseByteTest()
     {
       // Arrange
@@ -716,6 +733,64 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
       // Arrange
       var propertyName = "NullableDoubleProperty";
       var propertyInfo = typeof(Foo).GetProperties().Single(p => p.Name == propertyName);
+
+      // Act
+      var fieldParser = new FieldParser(propertyInfo);
+      var actual = fieldParser.Parse(String.Empty);
+
+      // Assert
+      Assert.IsNull(actual);
+      Assert.IsFalse(fieldParser.Errors.Any());
+    }
+
+    [TestMethod]
+    public void ParseBooleanUnparsableTest()
+    {
+      // Arrange
+      var propertyName = "BooleanProperty";
+      var propertyInfo = typeof(Baz).GetProperties().Single(p => p.Name == propertyName);
+
+      // Act
+      var fieldParser = new FieldParser(propertyInfo);
+      var actual = fieldParser.Parse("1");
+
+      // Assert
+      Assert.IsNull(actual);
+
+      var expectedErrorCount = 1;
+      var actualErrorCount = fieldParser.Errors.Count();
+      Assert.AreEqual<int>(expectedErrorCount, actualErrorCount);
+
+      var expectedErrorMessage = String.Format("{0}: Unparsable {1} >>> {2}",
+                                               fieldParser.FieldName,
+                                               fieldParser.FieldType,
+                                               fieldParser.FieldInput);
+      var actualErrorMessage = fieldParser.Errors.Single();
+      Assert.AreEqual<string>(expectedErrorMessage, actualErrorMessage);
+    }
+
+    [TestMethod]
+    public void ParseBooleanTest()
+    {
+      // Arrange
+      var propertyName = "BooleanProperty";
+      var propertyInfo = typeof(Baz).GetProperties().Single(p => p.Name == propertyName);
+
+      // Act
+      var fieldParser = new FieldParser(propertyInfo);
+      var actual = fieldParser.Parse($"  {System.Boolean.TrueString.ToLower()}  ");
+
+      // Assert
+      Assert.IsNotNull(actual);
+      Assert.IsFalse(fieldParser.Errors.Any());
+    }
+
+    [TestMethod]
+    public void ParseNullableBooleanTest()
+    {
+      // Arrange
+      var propertyName = "NullableBooleanProperty";
+      var propertyInfo = typeof(Baz).GetProperties().Single(p => p.Name == propertyName);
 
       // Act
       var fieldParser = new FieldParser(propertyInfo);

@@ -30,6 +30,7 @@ namespace IllyumL2T.Core.Parse
       _parseMethods[typeof(Nullable<Double>)] = ParseDouble;
       _parseMethods[typeof(Nullable<Decimal>)] = ParseDecimal;
       _parseMethods[typeof(Nullable<DateTime>)] = ParseDateTime;
+      _parseMethods[typeof(Nullable<DateTimeOffset>)] = ParseDateTimeOffset;
       _parseMethods[typeof(Nullable<UInt64>)] = ParseUInt64;
     }
 
@@ -73,6 +74,27 @@ namespace IllyumL2T.Core.Parse
 
       var result = default(DateTime);
       if(DateTime.TryParseExact(input, format, cultureInfo, dateTimeStyle, out result))
+      {
+        return result;
+      }
+
+      return null;
+    }
+
+    private static object ParseDateTimeOffset(IFieldParser fieldParser)
+    {
+      var input = fieldParser.FieldInput;
+      if(String.IsNullOrEmpty(input))
+      {
+        return null;
+      }
+
+      var format = fieldParser.ParseBehavior.DateTimeOffsetFormat;
+      var cultureInfo = new CultureInfo(fieldParser.ParseBehavior.CultureName);
+      var dateTimeStyle = fieldParser.ParseBehavior.DateTimeStyle;
+
+      var result = default(DateTimeOffset);
+      if(DateTimeOffset.TryParseExact(input, format, cultureInfo, dateTimeStyle, out result))
       {
         return result;
       }
