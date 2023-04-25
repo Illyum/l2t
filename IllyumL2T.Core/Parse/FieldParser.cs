@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -11,7 +10,7 @@ namespace IllyumL2T.Core.Parse
 {
   public class FieldParser : IFieldParser
   {
-    protected Func<IFieldParser, object> _parseMethod;
+    protected Func<IFieldParser, object> parseMethod;
 
     public FieldParser(PropertyInfo propertyInfo)
     {
@@ -29,9 +28,9 @@ namespace IllyumL2T.Core.Parse
       //
       // Based on the type, determine the method to parse the value...
       //
-      _parseMethod = FieldParserResolver.For(FieldType);
+      parseMethod = FieldParserResolver.For(FieldType);
 
-      _errors = new List<string>();
+      parsingErrors = new List<string>();
     }
 
     #region IFieldParser implementation
@@ -46,11 +45,8 @@ namespace IllyumL2T.Core.Parse
 
     public ParseBehaviorAttribute ParseBehavior { get; private set; }
 
-    protected List<string> _errors;
-    public IEnumerable<string> Errors
-    {
-      get { return _errors; }
-    }
+    protected List<string> parsingErrors;
+    public IEnumerable<string> Errors => parsingErrors;
 
     public object Parse(string input)
     {
@@ -72,7 +68,7 @@ namespace IllyumL2T.Core.Parse
       //
       // ...and finally, we reset the errors from the previous parse (if there was one)...
       //
-      _errors.Clear();
+      parsingErrors.Clear();
 
       //
       // Check if the input matches the pattern if one is defined...
@@ -83,12 +79,12 @@ namespace IllyumL2T.Core.Parse
         var options = RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.ExplicitCapture;
         if(Regex.IsMatch(input, pattern, options) == false)
         {
-          _errors.Add(String.Format("{0}: {1} does not match pattern >>> {2}", FieldName, FieldInput, pattern));
+          parsingErrors.Add(String.Format("{0}: {1} does not match pattern >>> {2}", FieldName, FieldInput, pattern));
           return null;
         }
       }
 
-      FieldValue = _parseMethod(this);
+      FieldValue = parseMethod(this);
 
       if(FieldValue != null)
       {
@@ -102,7 +98,7 @@ namespace IllyumL2T.Core.Parse
                        FieldType.GetGenericTypeDefinition() == typeof(Nullable<>);
       if(isNullable == false)
       {
-        _errors.Add(String.Format("{0}: Unparsable {1} >>> {2}", FieldName, FieldType, FieldInput));
+        parsingErrors.Add(String.Format("{0}: Unparsable {1} >>> {2}", FieldName, FieldType, FieldInput));
       }
 
       return null;

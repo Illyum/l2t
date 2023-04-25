@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-using IllyumL2T.Core.FieldsSplit;
 using IllyumL2T.Core.Parse;
 
 namespace IllyumL2T.Core.FieldsSplit.UnitTests
@@ -34,11 +31,45 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
       }
     }
 
+    [TestMethod, ExpectedException(typeof(NotSupportedException), $"{nameof(System.UInt16)} property data type must throw an exception.")]
+    public void UnsupportedPropertyTypeTest()
+    {
+      // Arrange
+      var line = $"1,2";
+
+      // Act
+      var lineParser = new LineParser<Qux>();
+      var parseResult = lineParser.Parse(line);
+    }
+
+    [TestMethod]
+    public void UnsupportedPropertyTypeMessageTest()
+    {
+      // Arrange
+      var line = $"1,2";
+      NotSupportedException expected_exception = null;
+
+      // Act
+      try
+      {
+        var lineParser = new LineParser<Qux>();
+        var parseResult = lineParser.Parse(line);
+      }
+      catch(NotSupportedException exception)
+      {
+        expected_exception = exception;
+      }
+
+      // Assert
+      Assert.IsNotNull(expected_exception);
+      Assert.AreEqual("Unsupported property type (System.UInt16).", expected_exception.Message);
+    }
+
     [TestMethod]
     public void LineParseTest()
     {
       // Arrange
-      var line = @"Jane Doe,jane@domain.com,F,,128,,1234,,98765,,1234567890,,1.2,,3.4,,3.1416,,25/12/2007,";
+      var line = $"Jane Doe,jane@domain.com,F,,128,,1234,,98765,,001234567890,,1.2,,3.4,,3.1416,,25/12/2007,,{System.UInt64.MaxValue},";
 
       // Act
       var lineParser = new LineParser<Foo>();
@@ -60,7 +91,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
         NullableInt16Property = null,
         Int32Property = 98765,
         NullableInt32Property = null,
-        Int64Property = 1234567890,
+        Int64Property = 1234567890L,
         NullableInt64Property = null,
         SingleProperty = 1.2F,
         NullableSingleProperty = null,
@@ -70,6 +101,8 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
         NullableDecimalProperty = null,
         DateTimeProperty = new DateTime(2007, 12, 25),
         NullableDateTimeProperty = null,
+        UInt64Property = System.UInt64.MaxValue,
+        NullableUInt64Property = null
       };
 
       Assert.AreEqual<Foo>(expected, actual);
@@ -155,7 +188,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
       Assert.AreEqual<SimpleOrder>(expected, actual);
     }
 
-    [TestMethod, ExpectedException(typeof(ArgumentNullException))]
+    [TestMethod, ExpectedException(typeof(ArgumentNullException), "Null input line must throw an exception.")]
     public void NullLineParsePositionalTest()
     {
       // Arrange
@@ -164,26 +197,20 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
       // Act
       var lineParser = new LineParser<SimpleOrder>(new PositionalValuesFieldsSplitter<SimpleOrder>());
       var parseResult = lineParser.Parse(line);
-
-      // Assert
-      Assert.Fail("Null input line must throw an exception.");
     }
 
-    [TestMethod, ExpectedException(typeof(ArgumentOutOfRangeException))]
+    [TestMethod, ExpectedException(typeof(ArgumentOutOfRangeException), "Positional field with non-positive length must throw an exception.")]
     public void NegativeLengthFieldParsePositionalTest()
     {
       // Arrange
-      var line = $" 1234ABCDE";//input line length is invalid field length.
+      var line = " 1234ABCDE";//input line length is invalid field length.
 
       // Act
       var lineParser = new LineParser<BadRecord>(new PositionalValuesFieldsSplitter<BadRecord>());
       var parseResult = lineParser.Parse(line);
-
-      // Assert
-      Assert.Fail("Positional field with non-positive length must throw an exception.");
     }
 
-    [TestMethod, ExpectedException(typeof(ArgumentOutOfRangeException))]
+    [TestMethod, ExpectedException(typeof(ArgumentOutOfRangeException), "Positional field with non-positive length must throw an exception.")]
     public void ZeroLengthFieldParsePositionalTest()
     {
       // Arrange
@@ -192,16 +219,13 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
       // Act
       var lineParser = new LineParser<BadRecord2>(new PositionalValuesFieldsSplitter<BadRecord2>());
       var parseResult = lineParser.Parse(line);
-
-      // Assert
-      Assert.Fail("Positional field with non-positive length must throw an exception.");
     }
 
     [TestMethod]
     public void LineParseWithErrorsTest()
     {
       // Arrange
-      var line = @"Jane Doe,jane@domain.com,F,,128,,ABCD,,98765,,1234567890,,*,,3.4,,3.1416,,99/99/9999,";
+      var line = "Jane Doe,jane@domain.com,F,,128,,ABCD,,98765,,1234567890,,*,,3.4,,3.1416,,99/99/9999,,123,";
 
       // Act
       var lineParser = new LineParser<Foo>();
@@ -228,7 +252,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
     public void LineParseNullsTest()
     {
       // Arrange
-      var line = @"Jane Doe,jane@domain.com,F,,128,,1234,,98765,,1234567890,,1.2,,3.4,,3.1416,,27/10/2007,";
+      var line = "Jane Doe,jane@domain.com,F,,128,,1234,,98765,,1234567890,,1.2,,3.4,,3.1416,,27/10/2007,,00123,";
 
       // Act
       var lineParser = new LineParser<Foo>();
@@ -252,7 +276,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
         NullableInt16Property = null,
         Int32Property = 98765,
         NullableInt32Property = null,
-        Int64Property = 1234567890,
+        Int64Property = 1234567890L,
         NullableInt64Property = null,
         SingleProperty = 1.2F,
         NullableSingleProperty = null,
@@ -262,6 +286,8 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
         NullableDecimalProperty = null,
         DateTimeProperty = new DateTime(2007, 10, 27),
         NullableDateTimeProperty = null,
+        UInt64Property = 123UL,
+        NullableUInt64Property = null
       };
 
       Assert.AreEqual<Foo>(expected, actual);
@@ -271,7 +297,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
     public void LineParseWithDelimiterWithinTheFieldTest()
     {
       // Arrange
-      var line = "\"Doe, Jane\",jane@domain.com,F,,128,,1234,,98765,,1234567890,,1.2,,3.4,,3.1416,,25/12/2007,";
+      var line = "\"Doe, Jane\",jane@domain.com,F,,128,,1234,,98765,,1234567890,,1.2,,3.4,,3.1416,,25/12/2007,,123,321";
 
       // Act
       var lineParser = new LineParser<Foo>();
@@ -293,7 +319,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
         NullableInt16Property = null,
         Int32Property = 98765,
         NullableInt32Property = null,
-        Int64Property = 1234567890,
+        Int64Property = 1234567890L,
         NullableInt64Property = null,
         SingleProperty = 1.2F,
         NullableSingleProperty = null,
@@ -303,6 +329,8 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
         NullableDecimalProperty = null,
         DateTimeProperty = new DateTime(2007, 12, 25),
         NullableDateTimeProperty = null,
+        UInt64Property = 123UL,
+        NullableUInt64Property = 321UL
       };
 
       Assert.AreEqual<Foo>(expected, actual);
@@ -312,7 +340,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
     public void LineParseUsingPipeAsDelimiterTest()
     {
       // Arrange
-      var line = "Jane Doe|jane@domain.com|F||128||1234||98765||1234567890||1.2||3.4||3.1416||25/12/2007|";
+      var line = "Jane Doe|jane@domain.com|F||128||1234||98765||1234567890||1.2||3.4||3.1416||25/12/2007||123|";
 
       // Act
       var fieldsSplitter = new DelimiterSeparatedValuesFieldsSplitter<Foo>(delimiter: '|');
@@ -335,7 +363,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
         NullableInt16Property = null,
         Int32Property = 98765,
         NullableInt32Property = null,
-        Int64Property = 1234567890,
+        Int64Property = 1234567890L,
         NullableInt64Property = null,
         SingleProperty = 1.2F,
         NullableSingleProperty = null,
@@ -345,6 +373,8 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
         NullableDecimalProperty = null,
         DateTimeProperty = new DateTime(2007, 12, 25),
         NullableDateTimeProperty = null,
+        UInt64Property = 123UL,
+        NullableUInt64Property = null
       };
 
       Assert.AreEqual<Foo>(expected, actual);
@@ -354,7 +384,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
     public void LineParseUsingTabsAsDelimiterTest()
     {
       // Arrange
-      var line = "Jane Doe\tjane@domain.com\tF\t\t128\t\t1234\t\t98765\t\t1234567890\t\t1.2\t\t3.4\t\t3.1416\t\t25/12/2007\t";
+      var line = "Jane Doe\tjane@domain.com\tF\t\t128\t\t1234\t\t98765\t\t1234567890\t\t1.2\t\t3.4\t\t3.1416\t\t25/12/2007\t\t123\t";
 
       // Act
       var fieldsSplitter = new DelimiterSeparatedValuesFieldsSplitter<Foo>(delimiter: '\t');
@@ -377,7 +407,7 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
         NullableInt16Property = null,
         Int32Property = 98765,
         NullableInt32Property = null,
-        Int64Property = 1234567890,
+        Int64Property = 1234567890L,
         NullableInt64Property = null,
         SingleProperty = 1.2F,
         NullableSingleProperty = null,
@@ -387,6 +417,8 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
         NullableDecimalProperty = null,
         DateTimeProperty = new DateTime(2007, 12, 25),
         NullableDateTimeProperty = null,
+        UInt64Property = 123UL,
+        NullableUInt64Property = null
       };
 
       Assert.AreEqual<Foo>(expected, actual);

@@ -51,6 +51,10 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
     [IllyumL2T.Core.ParseBehavior(DateTimeFormat = "dd/MM/yyyy")]
     public DateTime? NullableDateTimeProperty { get; set; }
 
+    public ulong UInt64Property { get; set; }
+
+    public ulong? NullableUInt64Property { get; set; }
+
     public override bool Equals(object other)
     {
       if(other is Foo)
@@ -84,7 +88,9 @@ namespace IllyumL2T.Core.FieldsSplit.UnitTests
              DecimalProperty.GetHashCode() +
              NullableDecimalProperty.GetHashCode() +
              DateTimeProperty.GetHashCode() +
-             NullableDateTimeProperty.GetHashCode();
+             NullableDateTimeProperty.GetHashCode() +
+             UInt64Property.GetHashCode() +
+             NullableUInt64Property.GetHashCode();
     }
   }
 }

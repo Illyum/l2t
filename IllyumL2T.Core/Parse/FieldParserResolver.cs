@@ -19,7 +19,7 @@ namespace IllyumL2T.Core.Parse
       // The same method for a Type parses Nullables and non-Nullables...
       //
 
-      _parseMethods[typeof(String)] = fieldParser => { return fieldParser.FieldInput; };
+      _parseMethods[typeof(String)] = fieldParser => fieldParser.FieldInput;
       _parseMethods[typeof(Nullable<Char>)] = ParseChar;
       _parseMethods[typeof(Nullable<Boolean>)] = ParseBoolean;
       _parseMethods[typeof(Nullable<Byte>)] = ParseByte;
@@ -31,11 +31,13 @@ namespace IllyumL2T.Core.Parse
       _parseMethods[typeof(Nullable<Decimal>)] = ParseDecimal;
       _parseMethods[typeof(Nullable<DateTime>)] = ParseDateTime;
       _parseMethods[typeof(Nullable<DateTimeOffset>)] = ParseDateTimeOffset;
+      _parseMethods[typeof(Nullable<UInt64>)] = ParseUInt64;
     }
 
     public static Func<IFieldParser, object> For(Type type)
     {
-      var key = _parseMethods.Keys.First(p => p.IsAssignableFrom(type));
+      var key = _parseMethods.Keys.FirstOrDefault(p => p.IsAssignableFrom(type));
+      if(key == default) throw new NotSupportedException($"Unsupported property type ({type?.FullName}).");
       return _parseMethods[key];
     }
 
@@ -145,6 +147,11 @@ namespace IllyumL2T.Core.Parse
     private static object ParseDouble(IFieldParser fieldParser)
     {
       return ParseNumber<double>(fieldParser, double.TryParse);
+    }
+
+    private static object ParseUInt64(IFieldParser fieldParser)
+    {
+      return ParseNumber<UInt64>(fieldParser, UInt64.TryParse);
     }
 
     #region Support declarations and methods
